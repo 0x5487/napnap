@@ -1,0 +1,7 @@
+*.exe
+*.db
+.idea
+.DS_Store
+.vscode
+*.iml
+*.swp
