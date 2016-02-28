@@ -2,65 +2,84 @@ package napnap
 
 import "net/http"
 
-const (
-	// CONNECT HTTP method
-	CONNECT = "CONNECT"
-	// DELETE HTTP method
-	DELETE = "DELETE"
-	// GET HTTP method
-	GET = "GET"
-	// HEAD HTTP method
-	HEAD = "HEAD"
-	// OPTIONS HTTP method
-	OPTIONS = "OPTIONS"
-	// PATCH HTTP method
-	PATCH = "PATCH"
-	// POST HTTP method
-	POST = "POST"
-	// PUT HTTP method
-	PUT = "PUT"
-	// TRACE HTTP method
-	TRACE = "TRACE"
-)
+type HandlerFunc func(c *Context)
 
-type (
-	NapNap struct {
-		Router           *Router
-		httpErrorHandler HTTPErrorHandler
-	}
+// MiddlewareHandler is an interface that objects can implement to be registered to serve as middleware
+// in the NapNap middleware stack.
+type MiddlewareHandler interface {
+	Execute(c *Context, next HandlerFunc)
+}
 
-	NapNapHandleFunc func(c *Context) error
-	// HTTPErrorHandler is a centralized HTTP error handler.
-	HTTPErrorHandler func(error)
-)
+// MiddlewareFunc is an adapter to allow the use of ordinary functions as NapNap handlers.
+type MiddlewareFunc func(c *Context, next HandlerFunc)
 
-func New() *NapNap {
+func (m MiddlewareFunc) Execute(c *Context, next HandlerFunc) {
+	m(c, next)
+}
+
+type middleware struct {
+	handler MiddlewareHandler
+	next    *middleware
+}
+
+func (m middleware) Invoke(c *Context) {
+	m.handler.Execute(c, m.next.Invoke)
+}
+
+type NapNap struct {
+	handlers   []MiddlewareHandler
+	middleware middleware
+	//httpErrorHandler HTTPErrorHandler
+}
+
+// New returns a new NapNap instance
+func New(mHandlers ...MiddlewareHandler) *NapNap {
 	return &NapNap{
-		Router: NewRouter(),
+		handlers:   mHandlers,
+		middleware: build(mHandlers),
 	}
 }
 
-func (nap *NapNap) Get(path string, handler NapNapHandleFunc) {
-	nap.Router.Add(GET, path, handler)
+func (nap *NapNap) UseFunc(mFunc func(c *Context, next HandlerFunc)) {
+	nap.Use(MiddlewareFunc(mFunc))
 }
 
-func (nap *NapNap) Post(path string, handler NapNapHandleFunc) {
-	nap.Router.Add(POST, path, handler)
+func (nap *NapNap) Use(mHandler MiddlewareHandler) {
+	nap.handlers = append(nap.handlers, mHandler)
+	nap.middleware = build(nap.handlers)
 }
 
+func build(handlers []MiddlewareHandler) middleware {
+	var next middleware
+
+	if len(handlers) == 0 {
+		return voidMiddleware()
+	} else if len(handlers) > 1 {
+		next = build(handlers[1:])
+	} else {
+		next = voidMiddleware()
+	}
+
+	return middleware{handlers[0], &next}
+}
+
+func voidMiddleware() middleware {
+	return middleware{
+		MiddlewareFunc(func(c *Context, next HandlerFunc) {}),
+		&middleware{},
+	}
+}
+
+// Run http server
 func (nap *NapNap) Run(addr string) {
+	//fmt.Println(fmt.Sprintf("listening on %s", addr))
 	http.ListenAndServe(addr, nap)
 }
 
 // Conforms to the http.Handler interface.
 func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-
 	c := NewContext(req, w)
-
-	// Execute chain
-	h := nap.Router.Find(req.Method, req.URL.Path)
-
-	if err := h(c); err != nil {
-		nap.httpErrorHandler(err)
-	}
+	nap.middleware.Invoke(c)
 }
+
+

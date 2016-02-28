@@ -1,29 +1,19 @@
 package main
 
 import (
-	"./napnap"
+	"napnap"
 )
 
 func main() {
 	nap := napnap.New()
 
-	nap.Get("/hello-world", func(c *napnap.Context) error {
-		c.String(200, "Hello World")
-		return nil
-	})
+	m1 := newMiddleware1()
+	m2 := newMiddleware2()
+	helloRouter := newHelloRouter()
 
-	nap.Get("/hello-meican", func(c *napnap.Context) error {
-		c.JSON(200, "Hello Meican")
-		return nil
-	})
-
-	nap.Post("/hello", func(c *napnap.Context) error {
-		name := c.Query("name")
-		nickName := c.Form("nick_name")
-
-		c.String(200, name+","+nickName)
-		return nil
-	})
+	nap.Use(m1)
+	nap.Use(helloRouter)
+	nap.Use(m2)
 
 	nap.Run(":8080")
 }
