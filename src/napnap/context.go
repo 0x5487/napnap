@@ -19,7 +19,6 @@ type (
 		query   url.Values
 		params  []Param
 		store   store
-		goNext  bool
 	}
 	store map[string]interface{}
 )
@@ -32,10 +31,6 @@ func NewContext(req *http.Request, writer http.ResponseWriter) *Context {
 	}
 }
 
-// Next middleware will be executed if any
-func (c *Context) Next() {
-	c.goNext = true
-}
 
 // String returns string format
 func (c *Context) String(code int, s string) (err error) {
@@ -91,4 +86,13 @@ func (c *Context) Param(name string) string {
 		}
 	}
 	return ""
+}
+
+
+func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
+    c.Request = req
+    c.Writer = w
+    c.store = nil
+    c.query = nil
+    c.params = nil    
 }

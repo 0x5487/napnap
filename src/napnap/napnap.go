@@ -1,6 +1,9 @@
 package napnap
 
-import "net/http"
+import (
+    "net/http"
+    "sync"
+)
 
 type HandlerFunc func(c *Context)
 
@@ -27,6 +30,7 @@ func (m middleware) Invoke(c *Context) {
 }
 
 type NapNap struct {
+    pool             sync.Pool
 	handlers   []MiddlewareHandler
 	middleware middleware
 	//httpErrorHandler HTTPErrorHandler
@@ -34,10 +38,16 @@ type NapNap struct {
 
 // New returns a new NapNap instance
 func New(mHandlers ...MiddlewareHandler) *NapNap {
-	return &NapNap{
+	nap := &NapNap{
 		handlers:   mHandlers,
 		middleware: build(mHandlers),
 	}
+    
+    nap.pool.New = func() interface{} {
+		return NewContext(nil, nil) 
+	}
+    
+    return nap
 }
 
 func (nap *NapNap) UseFunc(mFunc func(c *Context, next HandlerFunc)) {
@@ -77,9 +87,11 @@ func (nap *NapNap) Run(addr string) {
 }
 
 // Conforms to the http.Handler interface.
-func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	c := NewContext(req, w)
+func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) { 
+    c := nap.pool.Get().(*Context)
+    c.reset(req, w)
 	nap.middleware.Invoke(c)
+    nap.pool.Put(c)
 }
 
 
