@@ -60,8 +60,8 @@ func (c *Context) Query(name string) string {
 }
 
 // Form returns form parameter by name.
-func (c *Context) Form(name string) string {
-	s := c.Request.FormValue(name) // bug, it will also get value from querystring as well
+func (c *Context) Form(name string) string {    
+	s := c.Request.PostFormValue(name) 
 	return s
 }
 

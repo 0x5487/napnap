@@ -54,6 +54,7 @@ func (nap *NapNap) UseFunc(mFunc func(c *Context, next HandlerFunc)) {
 	nap.Use(MiddlewareFunc(mFunc))
 }
 
+// Use adds a Handler onto the middleware stack. Handlers are invoked in the order they are added to a NapNap.
 func (nap *NapNap) Use(mHandler MiddlewareHandler) {
 	nap.handlers = append(nap.handlers, mHandler)
 	nap.middleware = build(nap.handlers)

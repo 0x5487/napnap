@@ -6,6 +6,7 @@ import (
 
 func newHelloRouter() *napnap.Router {
 	router := napnap.NewRouter()
+    
 	router.Get("/hello", func(c *napnap.Context) {
 		c.String(200, "Hello World")
 	})
@@ -16,10 +17,11 @@ func newHelloRouter() *napnap.Router {
 	})
 
 	router.Post("/hello", func(c *napnap.Context) {
-		query_name := c.Query("first_name")
-		form_name := c.Form("last_name")
-		println("form: " + form_name)
-		c.String(200, query_name+","+form_name)
+		queryName :=  c.Query("first_name")    
+		formName := c.Form("first_name")        
+        
+		println("form: " + formName)
+		c.String(200, queryName+","+formName)
 	})
 
 	return router

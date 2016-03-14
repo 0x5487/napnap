@@ -4,7 +4,7 @@ import (
 	"napnap"
 )
 
-func main() {
+func main() {    
 	nap := napnap.New()
 
 	m1 := newMiddleware1()
