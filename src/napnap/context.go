@@ -67,14 +67,13 @@ func (c *Context) BindJSON(obj interface{}) (err error) {
 	contentType := req.Header.Get("Content-Type")
 
 	if contentType == "application/json" {
-		println("aa")
 		decoder := json.NewDecoder(req.Body)
 		err := decoder.Decode(obj)
 		if err != nil {
 			return err
 		}
 	} else {
-		return errors.New("content type is not application/json")
+		return errors.New("content type doesn't match application/json")
 	}
 
 	return
