@@ -10,13 +10,13 @@ type HandlerFunc func(c *Context)
 // MiddlewareHandler is an interface that objects can implement to be registered to serve as middleware
 // in the NapNap middleware stack.
 type MiddlewareHandler interface {
-	Execute(c *Context, next HandlerFunc)
+	Invoke(c *Context, next HandlerFunc)
 }
 
 // MiddlewareFunc is an adapter to allow the use of ordinary functions as NapNap handlers.
 type MiddlewareFunc func(c *Context, next HandlerFunc)
 
-func (m MiddlewareFunc) Execute(c *Context, next HandlerFunc) {
+func (m MiddlewareFunc) Invoke(c *Context, next HandlerFunc) {
 	m(c, next)
 }
 
@@ -25,8 +25,8 @@ type middleware struct {
 	next    *middleware
 }
 
-func (m middleware) Invoke(c *Context) {
-	m.handler.Execute(c, m.next.Invoke)
+func (m middleware) Execute(c *Context) {
+	m.handler.Invoke(c, m.next.Execute)
 }
 
 type NapNap struct {
@@ -50,8 +50,9 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
     return nap
 }
 
-func (nap *NapNap) UseFunc(mFunc func(c *Context, next HandlerFunc)) {
-	nap.Use(MiddlewareFunc(mFunc))
+// UseFunc adds an anonymous function onto middleware stack.
+func (nap *NapNap) UseFunc(aFunc func(c *Context, next HandlerFunc)) {
+	nap.Use(MiddlewareFunc(aFunc))
 }
 
 // Use adds a Handler onto the middleware stack. Handlers are invoked in the order they are added to a NapNap.
@@ -91,7 +92,7 @@ func (nap *NapNap) Run(addr string) {
 func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) { 
     c := nap.pool.Get().(*Context)
     c.reset(req, w)
-	nap.middleware.Invoke(c)
+	nap.middleware.Execute(c)
     nap.pool.Put(c)
 }
 

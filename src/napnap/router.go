@@ -81,7 +81,8 @@ func NewRouter() *Router {
 		},
 	}
 }
-func (r *Router) Execute(c *Context, next HandlerFunc) {
+// Invoke function is a middleware entry
+func (r *Router) Invoke(c *Context, next HandlerFunc) {
 	h := r.Find(c.Request.Method, c.Request.URL.Path, c)
 
 	if h == nil {
