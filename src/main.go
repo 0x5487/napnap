@@ -9,7 +9,7 @@ func main() {
 
 	nap.SetViews("views/*")
 
-	nap.UseFunc(renderMiddleware())
+	//nap.UseFunc(renderMiddleware())
 	nap.UseFunc(middleware1)
 
 	helloRouter := newHelloRouter()

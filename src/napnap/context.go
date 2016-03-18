@@ -2,6 +2,7 @@ package napnap
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 )
@@ -37,14 +38,14 @@ func NewContext(napnap *NapNap, req *http.Request, writer http.ResponseWriter) *
 func (c *Context) Render(code int, viewName string, data interface{}) (err error) {
 	c.Writer.WriteHeader(code)
 	c.NapNap.template.ExecuteTemplate(c.Writer, viewName, data)
-	return nil
+	return
 }
 
 // String returns string format
 func (c *Context) String(code int, s string) (err error) {
 	c.Writer.WriteHeader(code)
 	c.Writer.Write([]byte(s))
-	return nil
+	return
 }
 
 // JSON returns json format
@@ -56,7 +57,27 @@ func (c *Context) JSON(code int, i interface{}) (err error) {
 	c.Writer.Header().Set("Content-Type", "application/json")
 	c.Writer.WriteHeader(code)
 	c.Writer.Write(b)
-	return nil
+	return
+}
+
+// Bind binds the request body into provided type `obj`. The default binder does
+// it based on Content-Type header.
+func (c *Context) BindJSON(obj interface{}) (err error) {
+	req := c.Request
+	contentType := req.Header.Get("Content-Type")
+
+	if contentType == "application/json" {
+		println("aa")
+		decoder := json.NewDecoder(req.Body)
+		err := decoder.Decode(obj)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("content type is not application/json")
+	}
+
+	return
 }
 
 // Query returns query parameter by name.
