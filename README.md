@@ -2,10 +2,17 @@
 
 Roadmap <br/>
 We are planning to add those features in the future.
-- [x] logging
-- [x] json binding
-- [x] http/2
+- logging
+- json binding
 
 We support the following features
-- [o] routing features (static, parameter)
-- [o] middleware 
+- routing features (static, parameterized)
+- middleware
+- http/2 (https only)
+- rendering
+
+### Getting Started
+```
+
+
+```

@@ -4,7 +4,14 @@ import (
 	"napnap"
 )
 
+func renderMiddleware() napnap.MiddlewareFunc {
 
+	return func(c *napnap.Context, next napnap.HandlerFunc) {
+		println("rendering")
+
+		c.Render(200, "basic", nil)
+	}
+}
 
 func middleware1(c *napnap.Context, next napnap.HandlerFunc) {
 	println("=======================New Request")
@@ -15,7 +22,6 @@ func middleware1(c *napnap.Context, next napnap.HandlerFunc) {
 	//after...
 	println("logging3")
 }
-
 
 func middleware2(c *napnap.Context, next napnap.HandlerFunc) {
 	println("logging2")

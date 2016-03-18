@@ -14,6 +14,7 @@ type (
 	}
 
 	Context struct {
+		NapNap  *NapNap
 		Request *http.Request
 		Writer  http.ResponseWriter
 		query   url.Values
@@ -24,13 +25,20 @@ type (
 )
 
 // NewContext returns a new context instance
-func NewContext(req *http.Request, writer http.ResponseWriter) *Context {
+func NewContext(napnap *NapNap, req *http.Request, writer http.ResponseWriter) *Context {
 	return &Context{
+		NapNap:  napnap,
 		Request: req,
 		Writer:  writer,
 	}
 }
 
+// Render returns html format
+func (c *Context) Render(code int, viewName string, data interface{}) (err error) {
+	c.Writer.WriteHeader(code)
+	c.NapNap.template.ExecuteTemplate(c.Writer, viewName, data)
+	return nil
+}
 
 // String returns string format
 func (c *Context) String(code int, s string) (err error) {
@@ -60,8 +68,8 @@ func (c *Context) Query(name string) string {
 }
 
 // Form returns form parameter by name.
-func (c *Context) Form(name string) string {    
-	s := c.Request.PostFormValue(name) 
+func (c *Context) Form(name string) string {
+	s := c.Request.PostFormValue(name)
 	return s
 }
 
@@ -88,11 +96,10 @@ func (c *Context) Param(name string) string {
 	return ""
 }
 
-
 func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
-    c.Request = req
-    c.Writer = w
-    c.store = nil
-    c.query = nil
-    c.params = nil    
+	c.Request = req
+	c.Writer = w
+	c.store = nil
+	c.query = nil
+	c.params = nil
 }

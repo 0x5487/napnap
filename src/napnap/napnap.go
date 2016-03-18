@@ -1,8 +1,9 @@
 package napnap
 
 import (
-    "net/http"
-    "sync"
+	"html/template"
+	"net/http"
+	"sync"
 )
 
 type HandlerFunc func(c *Context)
@@ -30,9 +31,10 @@ func (m middleware) Execute(c *Context) {
 }
 
 type NapNap struct {
-    pool             sync.Pool
+	pool       sync.Pool
 	handlers   []MiddlewareHandler
 	middleware middleware
+	template   *template.Template
 	//httpErrorHandler HTTPErrorHandler
 }
 
@@ -42,12 +44,12 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
 		handlers:   mHandlers,
 		middleware: build(mHandlers),
 	}
-    
-    nap.pool.New = func() interface{} {
-		return NewContext(nil, nil) 
+
+	nap.pool.New = func() interface{} {
+		return NewContext(nap, nil, nil)
 	}
-    
-    return nap
+
+	return nap
 }
 
 // UseFunc adds an anonymous function onto middleware stack.
@@ -82,6 +84,20 @@ func voidMiddleware() middleware {
 	}
 }
 
+func (nap *NapNap) SetViews(path string) {
+	tmpl, err := template.ParseGlob(path)
+
+	if err != nil {
+		panic(err)
+	}
+
+	template := template.Must(tmpl, err)
+	if template == nil {
+		println("no template")
+	}
+	nap.template = template
+}
+
 // Run http server
 func (nap *NapNap) Run(addr string) {
 	//fmt.Println(fmt.Sprintf("listening on %s", addr))
@@ -89,11 +105,9 @@ func (nap *NapNap) Run(addr string) {
 }
 
 // Conforms to the http.Handler interface.
-func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) { 
-    c := nap.pool.Get().(*Context)
-    c.reset(req, w)
+func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	c := nap.pool.Get().(*Context)
+	c.reset(req, w)
 	nap.middleware.Execute(c)
-    nap.pool.Put(c)
+	nap.pool.Put(c)
 }
-
-
