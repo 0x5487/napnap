@@ -84,6 +84,12 @@ func voidMiddleware() middleware {
 	}
 }
 
+// SetTemplate function allows user to set their own template instance.
+func (nap *NapNap) SetTemplate(t *template.Template) {
+	nap.template = t
+}
+
+// SetViews function allows user to set template location.
 func (nap *NapNap) SetViews(path string) {
 	tmpl, err := template.ParseGlob(path)
 
