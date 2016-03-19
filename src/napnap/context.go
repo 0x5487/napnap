@@ -79,18 +79,26 @@ func (c *Context) BindJSON(obj interface{}) (err error) {
 	return
 }
 
-// Query returns query parameter by name.
-func (c *Context) Query(name string) string {
+// Query returns query parameter by key.
+func (c *Context) Query(key string) string {
 	if c.query == nil {
 		c.query = c.Request.URL.Query()
 	}
-	return c.query.Get(name)
+	return c.query.Get(key)
 }
 
-// Form returns form parameter by name.
-func (c *Context) Form(name string) string {
-	s := c.Request.PostFormValue(name)
-	return s
+// Form returns form parameter by key.
+func (c *Context) Form(key string) string {
+	req := c.Request
+	if s := req.PostFormValue(key); len(s) > 0 {
+		return s
+	}
+	if req.MultipartForm != nil {
+		if values := req.MultipartForm.Value[key]; len(values) > 0 {
+			return values[0]
+		}
+	}
+	return ""
 }
 
 // Get retrieves data from the context.

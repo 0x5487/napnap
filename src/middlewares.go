@@ -27,4 +27,10 @@ func middleware2(c *napnap.Context, next napnap.HandlerFunc) {
 	println("logging2")
 	key := c.Get("key").(string)
 	println("your key: " + key)
+	next(c)
+}
+
+func notFound(c *napnap.Context, next napnap.HandlerFunc) {
+	println("not found")
+	c.Writer.WriteHeader(404)
 }

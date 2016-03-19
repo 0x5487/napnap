@@ -34,8 +34,8 @@ func newHelloRouter() *napnap.Router {
 	})
 
 	router.Post("/hello", func(c *napnap.Context) {
-		queryName := c.Query("first_name")
-		formName := c.Form("first_name")
+		queryName := c.Query("get")
+		formName := c.Form("post")
 
 		println("form: " + formName)
 		c.String(200, queryName+","+formName)

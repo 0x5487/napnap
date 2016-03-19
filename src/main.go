@@ -12,6 +12,7 @@ func main() {
 	nap.UseFunc(middleware1)
 	nap.Use(newHelloRouter())
 	nap.UseFunc(middleware2)
+	nap.UseFunc(notFound)
 
 	nap.Run(":8080")
 }
