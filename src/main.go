@@ -1,6 +1,6 @@
 package main
 
-import "napnap"
+import "./napnap"
 
 func main() {
 	nap := napnap.New()

@@ -60,7 +60,7 @@ func (c *Context) JSON(code int, i interface{}) (err error) {
 	return
 }
 
-// Bind binds the request body into provided type `obj`. The default binder does
+// BindJSON binds the request body into provided type `obj`. The default binder does
 // it based on Content-Type header.
 func (c *Context) BindJSON(obj interface{}) (err error) {
 	req := c.Request

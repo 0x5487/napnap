@@ -81,6 +81,7 @@ func NewRouter() *Router {
 		},
 	}
 }
+
 // Invoke function is a middleware entry
 func (r *Router) Invoke(c *Context, next HandlerFunc) {
 	h := r.Find(c.Request.Method, c.Request.URL.Path, c)
@@ -97,8 +98,18 @@ func (r *Router) Get(path string, handler HandlerFunc) {
 	r.Add(GET, path, handler)
 }
 
-// Post is a shortcut for router.Post("POST", path, handle)
+// Post is a shortcut for router.Add("POST", path, handle)
 func (r *Router) Post(path string, handler HandlerFunc) {
+	r.Add(POST, path, handler)
+}
+
+// Put is a shortcut for router.Add("PUT", path, handle)
+func (r *Router) Put(path string, handler HandlerFunc) {
+	r.Add(POST, path, handler)
+}
+
+// Delete is a shortcut for router.Add("DELETE", path, handle)
+func (r *Router) Delete(path string, handler HandlerFunc) {
 	r.Add(POST, path, handler)
 }
 

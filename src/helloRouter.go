@@ -1,7 +1,7 @@
 package main
 
 import (
-	"napnap"
+	"./napnap"
 )
 
 type Person struct {
