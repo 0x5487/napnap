@@ -1,8 +1,0 @@
-<html>
-    <head>
-        <title>{{ .Title }}</title>
-    </head>
-    <body>
-		This is red theme <br/>
-    </body>
-</html>
