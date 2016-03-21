@@ -105,12 +105,27 @@ func (r *Router) Post(path string, handler HandlerFunc) {
 
 // Put is a shortcut for router.Add("PUT", path, handle)
 func (r *Router) Put(path string, handler HandlerFunc) {
-	r.Add(POST, path, handler)
+	r.Add(PUT, path, handler)
 }
 
 // Delete is a shortcut for router.Add("DELETE", path, handle)
 func (r *Router) Delete(path string, handler HandlerFunc) {
-	r.Add(POST, path, handler)
+	r.Add(DELETE, path, handler)
+}
+
+// Patch is a shortcut for router.Add("PATCH", path, handle)
+func (r *Router) Patch(path string, handler HandlerFunc) {
+	r.Add(PATCH, path, handler)
+}
+
+// Options is a shortcut for router.Add("OPTIONS", path, handle)
+func (r *Router) Options(path string, handler HandlerFunc) {
+	r.Add(OPTIONS, path, handler)
+}
+
+// Head is a shortcut for router.Add("HEAD", path, handle)
+func (r *Router) Head(path string, handler HandlerFunc) {
+	r.Add(HEAD, path, handler)
 }
 
 // Add function which adding path and handler to router
@@ -180,7 +195,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 			for _, el := range childNode.params {
 				println(el)
 			}
-
+			println("method:" + method)
 			childNode.addHandler(method, handler)
 		}
 
@@ -200,6 +215,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 // Find returns http handler for specific path
 func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 	println("===Find")
+	println("method:" + method)
 	println("path:" + path)
 	if path[0:1] == "/" {
 		path = path[1:]
@@ -241,6 +257,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 			myHandler := childNode.findHandler(method)
 			if myHandler == nil {
 				//return notFoundHandler
+				println("handler was not found")
 				return nil
 			}
 
@@ -332,6 +349,8 @@ func (n *node) addHandler(method string, h HandlerFunc) {
 		n.handler.connect = h
 	case TRACE:
 		n.handler.trace = h
+	default:
+		panic("method is not invalid or supported.")
 	}
 }
 
@@ -356,7 +375,7 @@ func (n *node) findHandler(method string) HandlerFunc {
 	case TRACE:
 		return n.handler.trace
 	default:
-		return nil
+		panic("method is not invalid or supported.")
 	}
 }
 
