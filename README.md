@@ -1,16 +1,5 @@
 # NapNap micro web framework
 
-## Roadmap
-We are planning to add those features in the future.
-- logging middleware
-
-We support the following features
-- routing features (static, parameterized)
-- custom middleware
-- http/2 (https only)
-- rendering
-- json binding
-
 ## Start using it
 1. Download and install it:
 
@@ -94,3 +83,112 @@ func main() {
 	nap.Run(":8080") //run on port 8080
 }
 ```
+
+#### Get querystring value
+```go
+package main
+
+import (
+	"github.com/jasonsoft/napnap"
+)
+
+func main() {
+	router := napnap.NewRouter()
+
+	router.Get("/querystring-value", func(c *napnap.Context) {
+		page := c.Query("page") //get query string value
+		c.String(200, page)
+	})
+
+	nap := napnap.New()
+	nap.Use(router)
+	nap.Run(":8080") //run on port 8080
+}
+```
+
+#### Get post form value (Multipart/Urlencoded Form)
+```go
+package main
+
+import (
+	"github.com/jasonsoft/napnap"
+)
+
+func main() {
+	router := napnap.NewRouter()
+
+	router.Post("/post-form-value", func(c *napnap.Context) {
+		userId := c.Form("user_id") //get post form value
+		c.String(200, userId)
+	})
+
+	nap := napnap.New()
+	nap.Use(router)
+	nap.Run(":8080") //run on port 8080
+}
+```
+
+#### JSON binding
+
+```go
+package main
+
+import "github.com/jasonsoft/napnap"
+
+func main() {
+	router := napnap.NewRouter()
+
+	router.Post("/json-binding", func(c *napnap.Context) {
+		var person struct {
+			Name string `json: name`
+			Age  int    `json: age`
+		}
+		if c.BindJSON(&person) == nil {
+			c.String(200, person.Name)
+		}
+	})
+
+	nap := napnap.New()
+	nap.Use(router)
+	nap.Run(":8080") //run on port 8080
+}
+```
+
+#### JSON rendering
+
+```go
+package main
+
+import "github.com/jasonsoft/napnap"
+
+func main() {
+	router := napnap.NewRouter()
+
+	router.Get("/json-rendering", func(c *napnap.Context) {
+		var person struct {
+			Name string `json: name`
+			Age  int    `json: age`
+		}
+
+		person.Name = "napnap"
+		person.Age = 18
+
+		c.JSON(200, person)
+	})
+
+	nap := napnap.New()
+	nap.Use(router)
+	nap.Run(":8080") //run on port 8080
+}
+```
+
+## Roadmap
+We are planning to add those features in the future.
+- logging middleware
+
+We support the following features
+- routing features (static, parameterized)
+- custom middleware
+- http/2 (https only)
+- rendering
+- json binding
