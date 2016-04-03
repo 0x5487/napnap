@@ -5,28 +5,25 @@ import "testing"
 func TestBasicStaticRoute(t *testing.T) {
 	router := NewRouter()
 
-	router.Add(GET, "/hello/get", func(c *Context) error {
+	router.Add(GET, "/hello/get", func(c *Context) {
 		println("GET Method")
-		return nil
 	})
 
-	router.Add(POST, "/hello/post", func(c *Context) error {
+	router.Add(POST, "/hello/post", func(c *Context) {
 		println("POST Method")
-		return nil
 	})
 
-	router.Add(PUT, "/hello/put", func(c *Context) error {
+	router.Add(PUT, "/hello/put", func(c *Context) {
 		println("PUT Method")
-		return nil
 	})
 
-	router.Add(DELETE, "/hello/delete", func(c *Context) error {
+	router.Add(DELETE, "/hello/delete", func(c *Context) {
 		println("DELETE Method")
-		return nil
 	})
 
 	println("===== result =====")
-	c := NewContext(nil, nil)
+	nap := New()
+	c := NewContext(nap, nil, nil)
 	h := router.Find(GET, "/hello/get", c)
 	if h == nil {
 		t.Error("handler can't be nil")
@@ -56,27 +53,24 @@ func TestBasicStaticRoute(t *testing.T) {
 func TestParameterRoute(t *testing.T) {
 	router := NewRouter()
 
-	router.Add(GET, "/users/:user/name", func(c *Context) error {
+	router.Add(GET, "/users/:user/name", func(c *Context) {
 		name := c.Param("user")
 		println("user: " + name)
-		return nil
 	})
 
-	router.Add(GET, "/users/:first/angela", func(c *Context) error {
+	router.Add(GET, "/users/:first/angela", func(c *Context) {
 		first := c.Param("first")
 		println("first: " + first)
-		return nil
 	})
 
-	router.Add(GET, "/users/:user/phone/:num", func(c *Context) error {
+	router.Add(GET, "/users/:user/phone/:num", func(c *Context) {
 		user := c.Param("user")
 		name := c.Param("num")
 		println("user: " + user)
 		println("name: " + name)
-		return nil
 	})
-
-	c := NewContext(nil, nil)
+	nap := New()
+	c := NewContext(nap, nil, nil)
 	h := router.Find(GET, "/users/jason/angela", c)
 
 	if h == nil {
