@@ -149,6 +149,11 @@ func (c *Context) RemoteIpAddress() string {
 	return ""
 }
 
+// ContentType returns the Content-Type header of the request.
+func (c *Context) ContentType() string {
+	return filterFlags(c.Request.Header.Get("Content-Type"))
+}
+
 func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
 	c.Request = req
 	c.Writer = w

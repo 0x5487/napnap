@@ -29,3 +29,13 @@ func TestRemoteIpAddress(t *testing.T) {
 	c.Request.Header.Del("X-Forwarded-For")
 	assert.Equal(t, "40.40.40.40", c.RemoteIpAddress())
 }
+
+func TestContextContentType(t *testing.T) {
+	nap := New()
+	c := NewContext(nap, nil, nil)
+
+	c.Request, _ = http.NewRequest("POST", "/", nil)
+	c.Request.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	assert.Equal(t, c.ContentType(), "application/json")
+}
