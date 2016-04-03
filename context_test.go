@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRemoteIpAddress(t *testing.T) {
+func TestContextRemoteIpAddress(t *testing.T) {
 	nap := New()
 	nap.ForwardRemoteIpAddress = true
 	c := NewContext(nap, nil, nil)

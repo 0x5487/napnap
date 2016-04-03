@@ -2,7 +2,7 @@ package napnap
 
 import "testing"
 
-func TestBasicStaticRoute(t *testing.T) {
+func TestRouterBasicStaticRoute(t *testing.T) {
 	router := NewRouter()
 
 	router.Add(GET, "/hello/get", func(c *Context) {
@@ -50,7 +50,7 @@ func TestBasicStaticRoute(t *testing.T) {
 	}
 }
 
-func TestParameterRoute(t *testing.T) {
+func TestRouterParameterRoute(t *testing.T) {
 	router := NewRouter()
 
 	router.Add(GET, "/users/:user/name", func(c *Context) {
