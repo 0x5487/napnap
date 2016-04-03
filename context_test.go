@@ -2,6 +2,7 @@ package napnap
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,4 +39,23 @@ func TestContextContentType(t *testing.T) {
 	c.Request.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	assert.Equal(t, c.ContentType(), "application/json")
+}
+
+func TestContextSetCookie(t *testing.T) {
+	w := httptest.NewRecorder()
+	nap := New()
+	c := NewContext(nap, nil, w)
+
+	c.SetCookie("user", "jason", 1, "/", "localhost", true, true)
+	assert.Equal(t, "user=jason; Path=/; Domain=localhost; Max-Age=1; HttpOnly; Secure", c.Writer.Header().Get("Set-Cookie"))
+}
+
+func TestContextGetCookie(t *testing.T) {
+	nap := New()
+	c := NewContext(nap, nil, nil)
+
+	c.Request, _ = http.NewRequest("GET", "/get", nil)
+	c.Request.Header.Set("Cookie", "user=jason")
+	cookie, _ := c.Cookie("user")
+	assert.Equal(t, "jason", cookie)
 }
