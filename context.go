@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type (
@@ -125,9 +126,27 @@ func (c *Context) Param(name string) string {
 	return ""
 }
 
-func (c *Context) GetRemoteIpAddress() string {
-	ip, _, _ := net.SplitHostPort(c.Request.RemoteAddr)
-	return ip
+// RemoteIpAddress returns the remote ip address, it parses
+// X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
+func (c *Context) RemoteIpAddress() string {
+	if c.NapNap.ForwardRemoteIpAddress {
+		remoteIpAddr := strings.TrimSpace(c.Request.Header.Get("X-Real-Ip"))
+		if len(remoteIpAddr) > 0 {
+			return remoteIpAddr
+		}
+		remoteIpAddr = c.Request.Header.Get("X-Forwarded-For")
+		if index := strings.IndexByte(remoteIpAddr, ','); index >= 0 {
+			remoteIpAddr = remoteIpAddr[0:index]
+		}
+		remoteIpAddr = strings.TrimSpace(remoteIpAddr)
+		if len(remoteIpAddr) > 0 {
+			return remoteIpAddr
+		}
+	}
+	if ip, _, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr)); err == nil {
+		return ip
+	}
+	return ""
 }
 
 func (c *Context) reset(req *http.Request, w http.ResponseWriter) {

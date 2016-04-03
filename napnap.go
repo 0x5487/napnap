@@ -35,6 +35,8 @@ type NapNap struct {
 	handlers   []MiddlewareHandler
 	middleware middleware
 	template   *template.Template
+
+	ForwardRemoteIpAddress bool
 	//httpErrorHandler HTTPErrorHandler
 }
 
