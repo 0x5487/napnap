@@ -3,6 +3,7 @@ package napnap
 import (
 	"encoding/json"
 	"errors"
+	"net"
 	"net/http"
 	"net/url"
 )
@@ -122,6 +123,11 @@ func (c *Context) Param(name string) string {
 		}
 	}
 	return ""
+}
+
+func (c *Context) GetRemoteIpAddress() string {
+	ip, _, _ := net.SplitHostPort(c.Request.RemoteAddr)
+	return ip
 }
 
 func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
