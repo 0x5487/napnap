@@ -2,16 +2,14 @@ package napnap
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestContextRemoteIpAddress(t *testing.T) {
-	nap := New()
-	nap.ForwardRemoteIpAddress = true
-	c := NewContext(nap, nil, nil)
+	c, _, _ := CreateTestContext()
+	c.NapNap.ForwardRemoteIpAddress = true
 
 	c.Request, _ = http.NewRequest("POST", "/", nil)
 
@@ -32,27 +30,23 @@ func TestContextRemoteIpAddress(t *testing.T) {
 }
 
 func TestContextContentType(t *testing.T) {
-	nap := New()
-	c := NewContext(nap, nil, nil)
+	c, _, _ := CreateTestContext()
 
 	c.Request, _ = http.NewRequest("POST", "/", nil)
 	c.Request.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	assert.Equal(t, c.ContentType(), "application/json")
+	assert.Equal(t, "application/json", c.ContentType())
 }
 
 func TestContextSetCookie(t *testing.T) {
-	w := httptest.NewRecorder()
-	nap := New()
-	c := NewContext(nap, nil, w)
+	c, _, _ := CreateTestContext()
 
 	c.SetCookie("user", "jason", 1, "/", "localhost", true, true)
 	assert.Equal(t, "user=jason; Path=/; Domain=localhost; Max-Age=1; HttpOnly; Secure", c.Writer.Header().Get("Set-Cookie"))
 }
 
 func TestContextGetCookie(t *testing.T) {
-	nap := New()
-	c := NewContext(nap, nil, nil)
+	c, _, _ := CreateTestContext()
 
 	c.Request, _ = http.NewRequest("GET", "/get", nil)
 	c.Request.Header.Set("Cookie", "user=jason")
