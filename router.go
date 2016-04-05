@@ -93,6 +93,17 @@ func (r *Router) Invoke(c *Context, next HandlerFunc) {
 	}
 }
 
+// All is a shortcut for adding all methods
+func (r *Router) All(path string, handler HandlerFunc) {
+	r.Add(GET, path, handler)
+	r.Add(POST, path, handler)
+	r.Add(PUT, path, handler)
+	r.Add(DELETE, path, handler)
+	r.Add(PATCH, path, handler)
+	r.Add(OPTIONS, path, handler)
+	r.Add(HEAD, path, handler)
+}
+
 // Get is a shortcut for router.Add("GET", path, handle)
 func (r *Router) Get(path string, handler HandlerFunc) {
 	r.Add(GET, path, handler)
