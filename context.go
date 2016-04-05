@@ -45,6 +45,7 @@ func (c *Context) Render(code int, viewName string, data interface{}) (err error
 
 // String returns string format
 func (c *Context) String(code int, s string) (err error) {
+	c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	c.Writer.WriteHeader(code)
 	c.Writer.Write([]byte(s))
 	return
