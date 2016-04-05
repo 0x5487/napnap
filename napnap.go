@@ -107,9 +107,9 @@ func (nap *NapNap) SetViews(path string) {
 }
 
 // Run http server
-func (nap *NapNap) Run(addr string) {
+func (nap *NapNap) Run(addr string) error {
 	//fmt.Println(fmt.Sprintf("listening on %s", addr))
-	http.ListenAndServe(addr, nap)
+	return http.ListenAndServe(addr, nap)
 }
 
 // Conforms to the http.Handler interface.
