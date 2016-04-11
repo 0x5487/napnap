@@ -53,3 +53,19 @@ func TestContextGetCookie(t *testing.T) {
 	cookie, _ := c.Cookie("user")
 	assert.Equal(t, "jason", cookie)
 }
+
+func TestContextSetRespHeader(t *testing.T) {
+	c, _, _ := CreateTestContext()
+	c.RespHeader("Content-Type", "text/plain")
+	c.RespHeader("X-Custom", "value")
+
+	assert.Equal(t, c.Writer.Header().Get("Content-Type"), "text/plain")
+	assert.Equal(t, c.Writer.Header().Get("X-Custom"), "value")
+
+	c.RespHeader("Content-Type", "text/html")
+	c.RespHeader("X-Custom", "")
+
+	assert.Equal(t, c.Writer.Header().Get("Content-Type"), "text/html")
+	_, exist := c.Writer.Header()["X-Custom"]
+	assert.False(t, exist)
+}

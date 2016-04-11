@@ -9,23 +9,22 @@ import (
 	"strings"
 )
 
-type (
-	// Param is a single URL parameter, consisting of a key and a value.
-	Param struct {
-		Key   string
-		Value string
-	}
+// Param is a single URL parameter, consisting of a key and a value.
+type Param struct {
+	Key   string
+	Value string
+}
 
-	Context struct {
-		NapNap  *NapNap
-		Request *http.Request
-		Writer  http.ResponseWriter
-		query   url.Values
-		params  []Param
-		store   store
-	}
-	store map[string]interface{}
-)
+type store map[string]interface{}
+
+type Context struct {
+	NapNap  *NapNap
+	Request *http.Request
+	Writer  http.ResponseWriter
+	query   url.Values
+	params  []Param
+	store   store
+}
 
 // NewContext returns a new context instance
 func NewContext(napnap *NapNap, req *http.Request, writer http.ResponseWriter) *Context {
@@ -187,6 +186,27 @@ func (c *Context) Cookie(name string) (string, error) {
 	}
 	val, _ := url.QueryUnescape(cookie.Value)
 	return val, nil
+}
+
+// Status is a intelligent shortcut for c.Writer.WriteHeader(code)
+func (c *Context) Status(code int) {
+	c.Writer.WriteHeader(code)
+}
+
+// RespHeader is a intelligent shortcut for c.Writer.Header().Set(key, value)
+// It writes a header in the response.
+// If value == "", this method removes the header `c.Writer.Header().Del(key)`
+func (c *Context) RespHeader(key, value string) {
+	if len(value) == 0 {
+		c.Writer.Header().Del(key)
+	} else {
+		c.Writer.Header().Set(key, value)
+	}
+}
+
+// RequestHeader is a intelligent shortcut for c.Request.Header.Get(key)
+func (c *Context) RequestHeader(key string) string {
+	return c.Request.Header.Get(key)
 }
 
 func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
