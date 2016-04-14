@@ -1,6 +1,7 @@
 package napnap
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 	"sync"
@@ -110,6 +111,29 @@ func (nap *NapNap) SetViews(path string) {
 func (nap *NapNap) Run(addr string) error {
 	//fmt.Println(fmt.Sprintf("listening on %s", addr))
 	return http.ListenAndServe(addr, nap)
+}
+
+func (nap *NapNap) RunAll(addrs []string) error {
+	if len(addrs) == 0 {
+		return errors.New("addrs can't be empty")
+	}
+
+	wg := &sync.WaitGroup{}
+
+	for _, addr := range addrs {
+		wg.Add(1)
+		go func(newAddr string) {
+			println(newAddr)
+			err := http.ListenAndServe(newAddr, nap)
+			if err != nil {
+				panic(err)
+			}
+			wg.Done()
+		}(addr)
+	}
+
+	wg.Wait()
+	return nil
 }
 
 // Conforms to the http.Handler interface.
