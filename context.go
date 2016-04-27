@@ -2,7 +2,6 @@ package napnap
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -74,11 +73,11 @@ func (c *Context) Redirect(code int, location string) error {
 // it based on Content-Type header.
 func (c *Context) BindJSON(obj interface{}) error {
 	req := c.Request
-		decoder := json.NewDecoder(req.Body)
-		err := decoder.Decode(obj)
-		if err != nil {
-			return err
-		}
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(obj)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
