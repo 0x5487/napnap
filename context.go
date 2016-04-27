@@ -16,15 +16,13 @@ type Param struct {
 	Value string
 }
 
-type store map[string]interface{}
-
 type Context struct {
 	NapNap  *NapNap
 	Request *http.Request
 	Writer  http.ResponseWriter
 	query   url.Values
 	params  []Param
-	store   store
+	store   map[string]interface{}
 }
 
 // NewContext returns a new context instance
@@ -114,14 +112,28 @@ func (c *Context) Form(key string) string {
 }
 
 // Get retrieves data from the context.
-func (c *Context) Get(key string) interface{} {
-	return c.store[key]
+func (c *Context) Get(key string) (interface{}, bool) {
+	var value interface{}
+	var exists bool
+	if c.store != nil {
+		value, exists = c.store[key]
+	}
+	return value, exists
+}
+
+// MustGet returns the value for the given key if it exists, otherwise it panics.
+func (c *Context) MustGet(key string) interface{} {
+	if value, exists := c.Get(key); exists {
+		return value
+	}
+	panic("Key \"" + key + "\" does not exist")
 }
 
 // Set saves data in the context.
+// It also lazy initializes  c.Keys if it was not used previously.
 func (c *Context) Set(key string, val interface{}) {
 	if c.store == nil {
-		c.store = make(store)
+		c.store = make(map[string]interface{})
 	}
 	c.store[key] = val
 }

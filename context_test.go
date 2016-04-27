@@ -87,3 +87,40 @@ func TestContextRedirectWithRelativePath(t *testing.T) {
 	assert.Equal(t, w.Code, 301)
 	assert.Equal(t, w.Header().Get("Location"), "/path")
 }
+
+func TestContextSetGet(t *testing.T) {
+	c, _, _ := CreateTestContext()
+	c.Set("foo", "bar")
+
+	value, err := c.Get("foo")
+	assert.Equal(t, value, "bar")
+	assert.True(t, err)
+
+	value, err = c.Get("foo2")
+	assert.Nil(t, value)
+	assert.False(t, err)
+
+	assert.Equal(t, c.MustGet("foo"), "bar")
+	assert.Panics(t, func() { c.MustGet("no_exist") })
+}
+
+func TestContextSetGetValues(t *testing.T) {
+	c, _, _ := CreateTestContext()
+	c.Set("string", "this is a string")
+	c.Set("int32", int32(-42))
+	c.Set("int64", int64(42424242424242))
+	c.Set("uint64", uint64(42))
+	c.Set("float32", float32(4.2))
+	c.Set("float64", 4.2)
+	var a interface{} = 1
+	c.Set("intInterface", a)
+
+	assert.Exactly(t, c.MustGet("string").(string), "this is a string")
+	assert.Exactly(t, c.MustGet("int32").(int32), int32(-42))
+	assert.Exactly(t, c.MustGet("int64").(int64), int64(42424242424242))
+	assert.Exactly(t, c.MustGet("uint64").(uint64), uint64(42))
+	assert.Exactly(t, c.MustGet("float32").(float32), float32(4.2))
+	assert.Exactly(t, c.MustGet("float64").(float64), 4.2)
+	assert.Exactly(t, c.MustGet("intInterface").(int), 1)
+
+}
