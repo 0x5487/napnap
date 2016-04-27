@@ -72,21 +72,14 @@ func (c *Context) Redirect(code int, location string) error {
 
 // BindJSON binds the request body into provided type `obj`. The default binder does
 // it based on Content-Type header.
-func (c *Context) BindJSON(obj interface{}) (err error) {
+func (c *Context) BindJSON(obj interface{}) error {
 	req := c.Request
-	contentType := req.Header.Get("Content-Type")
-
-	if contentType == "application/json" {
 		decoder := json.NewDecoder(req.Body)
 		err := decoder.Decode(obj)
 		if err != nil {
 			return err
 		}
-	} else {
-		return errors.New("content type doesn't match application/json")
-	}
-
-	return
+	return nil
 }
 
 // Query returns query parameter by key.
