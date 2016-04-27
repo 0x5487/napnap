@@ -3,6 +3,7 @@ package napnap
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -60,6 +61,15 @@ func (c *Context) JSON(code int, i interface{}) (err error) {
 	c.Writer.WriteHeader(code)
 	c.Writer.Write(b)
 	return
+}
+
+// Redirect returns a HTTP redirect to the specific location.
+func (c *Context) Redirect(code int, location string) error {
+	if (code < 300 || code > 308) && code != 201 {
+		return fmt.Errorf("Cannot redirect with status code %d", code)
+	}
+	http.Redirect(c.Writer, c.Request, location, code)
+	return nil
 }
 
 // BindJSON binds the request body into provided type `obj`. The default binder does

@@ -123,7 +123,6 @@ func (nap *NapNap) RunAll(addrs []string) error {
 	for _, addr := range addrs {
 		wg.Add(1)
 		go func(newAddr string) {
-			println(newAddr)
 			err := http.ListenAndServe(newAddr, nap)
 			if err != nil {
 				panic(err)
