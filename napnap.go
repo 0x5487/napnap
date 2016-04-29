@@ -7,6 +7,16 @@ import (
 	"sync"
 )
 
+var (
+	_logger *logger
+)
+
+func init() {
+	_logger = &logger{
+		mode: off,
+	}
+}
+
 type HandlerFunc func(c *Context)
 
 // MiddlewareHandler is an interface that objects can implement to be registered to serve as middleware
@@ -102,7 +112,7 @@ func (nap *NapNap) SetViews(path string) {
 
 	template := template.Must(tmpl, err)
 	if template == nil {
-		println("no template")
+		_logger.debug("no template")
 	}
 	nap.template = template
 }

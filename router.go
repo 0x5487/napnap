@@ -2,37 +2,38 @@ package napnap
 
 import "strings"
 
-type (
-	Router struct {
-		tree *tree
-	}
+type Router struct {
+	tree *tree
+}
 
-	tree struct {
-		rootNode *node
-	}
-	kind uint8
-	node struct {
-		parent    *node
-		children  []*node
-		kind      kind
-		name      string
-		pNames    []string
-		params    []string
-		sortOrder int
-		handler   *methodHandler
-	}
-	methodHandler struct {
-		connect HandlerFunc
-		delete  HandlerFunc
-		get     HandlerFunc
-		head    HandlerFunc
-		options HandlerFunc
-		patch   HandlerFunc
-		post    HandlerFunc
-		put     HandlerFunc
-		trace   HandlerFunc
-	}
-)
+type tree struct {
+	rootNode *node
+}
+
+type kind uint8
+
+type node struct {
+	parent    *node
+	children  []*node
+	kind      kind
+	name      string
+	pNames    []string
+	params    []string
+	sortOrder int
+	handler   *methodHandler
+}
+
+type methodHandler struct {
+	connect HandlerFunc
+	delete  HandlerFunc
+	get     HandlerFunc
+	head    HandlerFunc
+	options HandlerFunc
+	patch   HandlerFunc
+	post    HandlerFunc
+	put     HandlerFunc
+	trace   HandlerFunc
+}
 
 const (
 	// CONNECT HTTP method
@@ -57,7 +58,7 @@ const (
 
 var (
 	notFoundHandler = func(c *Context) {
-		println("NotFound")
+		_logger.debug("NotFound")
 	}
 )
 
@@ -141,18 +142,18 @@ func (r *Router) Head(path string, handler HandlerFunc) {
 
 // Add function which adding path and handler to router
 func (r *Router) Add(method string, path string, handler HandlerFunc) {
-	println("===Add")
+	_logger.debug("===Add")
 	if len(path) == 0 {
-		panic("path couldn't be empty")
+		panic("router: path couldn't be empty")
 	}
 
 	if path[0:1] == "/" {
 		path = path[1:]
 	} else {
-		panic("path was invalid")
+		panic("router: path was invalid")
 	}
 
-	println("path:" + path)
+	_logger.debug("path:" + path)
 
 	pathArray := strings.Split(path, "/")
 	count := len(pathArray)
@@ -169,7 +170,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 		if element[0:1] == ":" {
 			// that is parameter node
 			pName := element[1:]
-			println("parameterName:" + pName)
+			_logger.debug("parameterName:" + pName)
 			childNode = currentNode.findChildByKind(pkind)
 			if childNode == nil {
 				childNode = newNode(pName, pkind)
@@ -185,7 +186,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 
 			if isFound == false {
 				childNode.pNames = append(childNode.pNames, pName)
-				println("added_parameter_name:" + pName)
+				_logger.debug("added_parameter_name:" + pName)
 			}
 
 			pathParams = append(pathParams, pName)
@@ -202,11 +203,11 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 		// last node in the path
 		if count == index+1 {
 			childNode.params = pathParams
-			println("lastNode_param:")
+			_logger.debug("lastNode_param:")
 			for _, el := range childNode.params {
 				println(el)
 			}
-			println("method:" + method)
+			_logger.debug("method:" + method)
 			childNode.addHandler(method, handler)
 		}
 
@@ -225,9 +226,9 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 
 // Find returns http handler for specific path
 func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
-	println("===Find")
-	println("method:" + method)
-	println("path:" + path)
+	_logger.debug("===Find")
+	_logger.debug("method:" + method)
+	_logger.debug("path:" + path)
 	if path[0:1] == "/" {
 		path = path[1:]
 	}
@@ -268,7 +269,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 			myHandler := childNode.findHandler(method)
 			if myHandler == nil {
 				//return notFoundHandler
-				println("handler was not found")
+				_logger.debug("handler was not found")
 				return nil
 			}
 
@@ -282,7 +283,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 
 			paramsNum = 0
 			//println("params_count:", len(pathParams))
-			println("lastNode_params_count:", len(childNode.params))
+			_logger.debug("lastNode_params_count:", len(childNode.params))
 			for _, el := range childNode.params {
 				println(el)
 			}
@@ -290,7 +291,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 				for _, p := range pathParams[paramsNum] {
 					//println("p_value:", index, p.Key+"&"+p.Value)
 					if validParam == p.Key {
-						println("matched: " + validParam + "," + p.Value)
+						_logger.debug("matched: " + validParam + "," + p.Value)
 						c.params = append(c.params, p)
 					}
 				}
