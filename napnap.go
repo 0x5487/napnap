@@ -48,14 +48,16 @@ type NapNap struct {
 	template   *template.Template
 
 	ForwardRemoteIpAddress bool
+	MaxRequestBodySize     int64
 	//httpErrorHandler HTTPErrorHandler
 }
 
 // New returns a new NapNap instance
 func New(mHandlers ...MiddlewareHandler) *NapNap {
 	nap := &NapNap{
-		handlers:   mHandlers,
-		middleware: build(mHandlers),
+		handlers:           mHandlers,
+		middleware:         build(mHandlers),
+		MaxRequestBodySize: 10485760, // default 10MB for request body size
 	}
 
 	nap.pool.New = func() interface{} {
@@ -147,6 +149,7 @@ func (nap *NapNap) RunAll(addrs []string) error {
 
 // Conforms to the http.Handler interface.
 func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	req.Body = http.MaxBytesReader(w, req.Body, nap.MaxRequestBodySize)
 	c := nap.pool.Get().(*Context)
 	c.reset(req, w)
 	nap.middleware.Execute(c)

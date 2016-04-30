@@ -3,6 +3,7 @@ package napnap
 import (
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
@@ -101,6 +102,12 @@ func (c *Context) Form(key string) string {
 		}
 	}
 	return ""
+}
+
+// FormFile returns file.
+func (c *Context) FormFile(key string) (*multipart.FileHeader, error) {
+	_, fh, err := c.Request.FormFile(key)
+	return fh, err
 }
 
 // Get retrieves data from the context.
