@@ -29,7 +29,7 @@ const (
 // wrapped in.
 type gzipResponseWriter struct {
 	w *gzip.Writer
-	http.ResponseWriter
+	ResponseWriter
 }
 
 // Write writes bytes to the gzip.Writer. It will also set the Content-Type

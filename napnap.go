@@ -151,7 +151,9 @@ func (nap *NapNap) RunAll(addrs []string) error {
 func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req.Body = http.MaxBytesReader(w, req.Body, nap.MaxRequestBodySize)
 	c := nap.pool.Get().(*Context)
-	c.reset(req, w)
+	c.Request = req
+	c.Writer.reset(w)
+	c.reset()
 	nap.middleware.Execute(c)
 	nap.pool.Put(c)
 }

@@ -19,14 +19,14 @@ type Param struct {
 type Context struct {
 	NapNap  *NapNap
 	Request *http.Request
-	Writer  http.ResponseWriter
+	Writer  ResponseWriter
 	query   url.Values
 	params  []Param
 	store   map[string]interface{}
 }
 
 // NewContext returns a new context instance
-func NewContext(napnap *NapNap, req *http.Request, writer http.ResponseWriter) *Context {
+func NewContext(napnap *NapNap, req *http.Request, writer ResponseWriter) *Context {
 	return &Context{
 		NapNap:  napnap,
 		Request: req,
@@ -230,9 +230,7 @@ func (c *Context) RequestHeader(key string) string {
 	return c.Request.Header.Get(key)
 }
 
-func (c *Context) reset(req *http.Request, w http.ResponseWriter) {
-	c.Request = req
-	c.Writer = w
+func (c *Context) reset() {
 	c.store = nil
 	c.query = nil
 	c.params = nil

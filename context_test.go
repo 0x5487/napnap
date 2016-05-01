@@ -75,7 +75,7 @@ func TestContextRedirectWithAbsolutePath(t *testing.T) {
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 	c.Redirect(302, "http://google.com")
 
-	assert.Equal(t, w.Code, 302)
+	assert.Equal(t, w.Status(), 302)
 	assert.Equal(t, w.Header().Get("Location"), "http://google.com")
 }
 
@@ -84,7 +84,7 @@ func TestContextRedirectWithRelativePath(t *testing.T) {
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 
 	c.Redirect(301, "/path")
-	assert.Equal(t, w.Code, 301)
+	assert.Equal(t, w.Status(), 301)
 	assert.Equal(t, w.Header().Get("Location"), "/path")
 }
 
