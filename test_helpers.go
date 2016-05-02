@@ -6,7 +6,8 @@ import (
 
 func CreateTestContext() (*Context, ResponseWriter, *NapNap) {
 	nap := New()
-	w := NewResponseWriter(httptest.NewRecorder())
-	c := NewContext(nap, nil, w)
-	return c, w, nap
+	rw := NewResponseWriter()
+	rw.reset(httptest.NewRecorder())
+	c := NewContext(nap, nil, rw)
+	return c, rw, nap
 }

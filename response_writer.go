@@ -22,11 +22,10 @@ type responseWriter struct {
 }
 
 // NewResponseWriter returns a ResponseWriter which wraps the writer
-func NewResponseWriter(writer http.ResponseWriter) ResponseWriter {
+func NewResponseWriter() ResponseWriter {
 	return &responseWriter{
-		ResponseWriter: writer,
-		status:         defaultStatus,
-		contentLength:  noWritten,
+		status:        defaultStatus,
+		contentLength: noWritten,
 	}
 }
 

@@ -61,7 +61,8 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
 	}
 
 	nap.pool.New = func() interface{} {
-		return NewContext(nap, nil, nil)
+		rw := NewResponseWriter()
+		return NewContext(nap, nil, rw)
 	}
 
 	return nap
