@@ -147,9 +147,9 @@ func (c *Context) Param(name string) string {
 	return ""
 }
 
-// RemoteIpAddress returns the remote ip address, it parses
+// RemoteIPAddress returns the remote ip address, it parses
 // X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
-func (c *Context) RemoteIpAddress() string {
+func (c *Context) RemoteIPAddress() string {
 	if c.NapNap.ForwardRemoteIpAddress {
 		remoteIpAddr := strings.TrimSpace(c.Request.Header.Get("X-Real-Ip"))
 		if len(remoteIpAddr) > 0 {
@@ -209,8 +209,8 @@ func (c *Context) Cookie(name string) (string, error) {
 	return val, nil
 }
 
-// Status is a intelligent shortcut for c.Writer.WriteHeader(code)
-func (c *Context) Status(code int) {
+// SetStatus is a intelligent shortcut for c.Writer.WriteHeader(code)
+func (c *Context) SetStatus(code int) {
 	c.Writer.WriteHeader(code)
 }
 
