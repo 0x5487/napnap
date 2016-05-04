@@ -214,6 +214,11 @@ func (c *Context) SetStatus(code int) {
 	c.Writer.WriteHeader(code)
 }
 
+// Status is a intelligent shortcut for c.Writer.Status()
+func (c *Context) Status() int {
+	return c.Writer.Status()
+}
+
 // RespHeader is a intelligent shortcut for c.Writer.Header().Set(key, value)
 // It writes a header in the response.
 // If value == "", this method removes the header `c.Writer.Header().Del(key)`
