@@ -204,9 +204,6 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 		if count == index+1 {
 			childNode.params = pathParams
 			_logger.debug("lastNode_param:")
-			for _, el := range childNode.params {
-				println(el)
-			}
 			_logger.debug("method:" + method)
 			childNode.addHandler(method, handler)
 		}
