@@ -281,9 +281,6 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 			paramsNum = 0
 			//println("params_count:", len(pathParams))
 			_logger.debug("lastNode_params_count:", len(childNode.params))
-			for _, el := range childNode.params {
-				println(el)
-			}
 			for _, validParam := range childNode.params {
 				for _, p := range pathParams[paramsNum] {
 					//println("p_value:", index, p.Key+"&"+p.Value)
