@@ -9,7 +9,7 @@ func NewHealth() *Health {
 
 func (h *Health) Invoke(c *Context, next HandlerFunc) {
 	if c.Request.URL.Path == "/health" {
-		c.String(200, "ok")
+		c.String(200, "OK")
 	} else {
 		next(c)
 	}
