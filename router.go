@@ -318,7 +318,7 @@ func (n *node) addChild(node *node) {
 func (n *node) findChildByName(name string) *node {
 	var result *node
 	for _, element := range n.children {
-		if element.name == name && element.kind == skind {
+		if strings.EqualFold(element.name, name) && element.kind == skind {
 			result = element
 			break
 		}
@@ -356,7 +356,7 @@ func (n *node) addHandler(method string, h HandlerFunc) {
 	case TRACE:
 		n.handler.trace = h
 	default:
-		panic("method is not invalid or supported.")
+		panic("method was invalid")
 	}
 }
 
@@ -381,7 +381,7 @@ func (n *node) findHandler(method string) HandlerFunc {
 	case TRACE:
 		return n.handler.trace
 	default:
-		panic("method is not invalid or supported.")
+		panic("method was invalid")
 	}
 }
 
