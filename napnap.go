@@ -17,6 +17,7 @@ func init() {
 	}
 }
 
+// HandlerFunc defines a function to server HTTP requests
 type HandlerFunc func(c *Context)
 
 // MiddlewareHandler is an interface that objects can implement to be registered to serve as middleware
@@ -39,6 +40,13 @@ type middleware struct {
 
 func (m middleware) Execute(c *Context) {
 	m.handler.Invoke(c, m.next.Execute)
+}
+
+// WrapHandler wraps `http.Handler` into `napnap.HandlerFunc`.
+func WrapHandler(h http.Handler) HandlerFunc {
+	return func(c *Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
 }
 
 type NapNap struct {
