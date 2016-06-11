@@ -235,7 +235,9 @@ func (c *Context) RequestHeader(key string) string {
 	return c.Request.Header.Get(key)
 }
 
-func (c *Context) reset() {
+func (c *Context) reset(w http.ResponseWriter, req *http.Request) {
+	c.Request = req
+	c.Writer = c.Writer.reset(w)
 	c.store = nil
 	c.query = nil
 	c.params = nil

@@ -12,7 +12,7 @@ type ResponseWriter interface {
 	http.ResponseWriter
 	ContentLength() int
 	Status() int
-	reset(writer http.ResponseWriter)
+	reset(writer http.ResponseWriter) ResponseWriter
 }
 
 type responseWriter struct {
@@ -22,7 +22,7 @@ type responseWriter struct {
 }
 
 // NewResponseWriter returns a ResponseWriter which wraps the writer
-func NewResponseWriter() ResponseWriter {
+func NewResponseWriter() *responseWriter {
 	return &responseWriter{
 		status:        defaultStatus,
 		contentLength: noWritten,
@@ -51,8 +51,9 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.ResponseWriter.WriteHeader(rw.status)
 }
 
-func (rw *responseWriter) reset(writer http.ResponseWriter) {
+func (rw *responseWriter) reset(writer http.ResponseWriter) ResponseWriter {
 	rw.ResponseWriter = writer
 	rw.contentLength = noWritten
 	rw.status = defaultStatus
+	return rw
 }

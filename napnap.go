@@ -57,7 +57,6 @@ type NapNap struct {
 
 	ForwardRemoteIpAddress bool
 	MaxRequestBodySize     int64
-	//httpErrorHandler HTTPErrorHandler
 }
 
 // New returns a new NapNap instance
@@ -160,9 +159,7 @@ func (nap *NapNap) RunAll(addrs []string) error {
 func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req.Body = http.MaxBytesReader(w, req.Body, nap.MaxRequestBodySize)
 	c := nap.pool.Get().(*Context)
-	c.Request = req
-	c.Writer.reset(w)
-	c.reset()
+	c.reset(w, req)
 	nap.middleware.Execute(c)
 	nap.pool.Put(c)
 }

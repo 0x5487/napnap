@@ -28,7 +28,7 @@ const (
 // gzipResponseWriter is the ResponseWriter that http.ResponseWriter is
 // wrapped in.
 type gzipResponseWriter struct {
-	w *gzip.Writer
+	gz *gzip.Writer
 	ResponseWriter
 }
 
@@ -39,7 +39,7 @@ func (grw gzipResponseWriter) Write(b []byte) (int, error) {
 	if len(grw.Header().Get(headerContentType)) == 0 {
 		grw.Header().Set(headerContentType, http.DetectContentType(b))
 	}
-	return grw.w.Write(b)
+	return grw.gz.Write(b)
 }
 
 // handler struct contains the ServeHTTP method
@@ -109,9 +109,6 @@ func (h *gzipMiddleware) Invoke(c *Context, next HandlerFunc) {
 	// the original.
 	c.Writer = grw
 	next(c)
-
-	// Delete the content length after we know we have been written to.
-	grw.Header().Del(headerContentLength)
 
 	gz.Close()
 }
