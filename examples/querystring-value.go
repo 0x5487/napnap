@@ -7,7 +7,7 @@ import (
 func main() {
 	router := napnap.NewRouter()
 
-	router.Get("/querystring-value", func(c *napnap.Context) {
+	router.Get("/test?page=1", func(c *napnap.Context) {
 		page := c.Query("page") //get query string value
 		c.String(200, page)
 	})
