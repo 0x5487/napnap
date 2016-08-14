@@ -4,10 +4,12 @@ import (
 	"net/http/httptest"
 )
 
-func CreateTestContext() (*Context, ResponseWriter, *NapNap) {
+func CreateTestContext() (*Context, *httptest.ResponseRecorder, *NapNap) {
 	nap := New()
-	rw := NewResponseWriter()
-	rw.reset(httptest.NewRecorder())
-	c := NewContext(nap, nil, rw)
-	return c, rw, nap
+	w := httptest.NewRecorder()
+	c := &Context{}
+	c.NapNap = nap
+	c.Writer.reset(w)
+	//c := NewContext(nap, nil, w)
+	return c, w, nap
 }

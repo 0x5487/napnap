@@ -1,6 +1,7 @@
 package napnap
 
 import (
+	"html/template"
 	"net/http"
 	"testing"
 
@@ -17,16 +18,16 @@ func TestContextRemoteIpAddress(t *testing.T) {
 	c.Request.Header.Set("X-Forwarded-For", "  20.20.20.20, 30.30.30.30")
 	c.Request.RemoteAddr = "  40.40.40.40:42123 "
 
-	assert.Equal(t, "10.10.10.10", c.RemoteIpAddress())
+	assert.Equal(t, "10.10.10.10", c.RemoteIPAddress())
 
 	c.Request.Header.Del("X-Real-IP")
-	assert.Equal(t, "20.20.20.20", c.RemoteIpAddress())
+	assert.Equal(t, "20.20.20.20", c.RemoteIPAddress())
 
 	c.Request.Header.Set("X-Forwarded-For", "30.30.30.30  ")
-	assert.Equal(t, "30.30.30.30", c.RemoteIpAddress())
+	assert.Equal(t, "30.30.30.30", c.RemoteIPAddress())
 
 	c.Request.Header.Del("X-Forwarded-For")
-	assert.Equal(t, "40.40.40.40", c.RemoteIpAddress())
+	assert.Equal(t, "40.40.40.40", c.RemoteIPAddress())
 }
 
 func TestContextContentType(t *testing.T) {
@@ -75,7 +76,7 @@ func TestContextRedirectWithAbsolutePath(t *testing.T) {
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 	c.Redirect(302, "http://google.com")
 
-	assert.Equal(t, w.Status(), 302)
+	assert.Equal(t, 302, w.Code)
 	assert.Equal(t, w.Header().Get("Location"), "http://google.com")
 }
 
@@ -84,7 +85,7 @@ func TestContextRedirectWithRelativePath(t *testing.T) {
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 
 	c.Redirect(301, "/path")
-	assert.Equal(t, w.Status(), 301)
+	assert.Equal(t, 301, w.Code)
 	assert.Equal(t, w.Header().Get("Location"), "/path")
 }
 
@@ -123,4 +124,21 @@ func TestContextSetGetValues(t *testing.T) {
 	assert.Exactly(t, c.MustGet("float64").(float64), 4.2)
 	assert.Exactly(t, c.MustGet("intInterface").(int), 1)
 
+}
+
+// Tests that the response executes the templates
+// and responds with Content-Type set to text/html
+func TestContextRenderHTML(t *testing.T) {
+	c, w, nap := CreateTestContext()
+	templ := template.Must(template.New("t").Parse(`Hello {{.name}}`))
+	nap.SetTemplate(templ)
+
+	data := make(map[string]string, 1)
+	data["name"] = "NapNap"
+
+	c.Render(201, "t", data)
+
+	assert.Equal(t, 201, w.Code)
+	assert.Equal(t, "Hello NapNap", w.Body.String())
+	assert.Equal(t, "text/html; charset=utf-8", w.HeaderMap.Get("Content-Type"))
 }

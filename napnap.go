@@ -112,8 +112,8 @@ func (nap *NapNap) SetTemplate(t *template.Template) {
 	nap.template = t
 }
 
-// SetViews function allows user to set template location.
-func (nap *NapNap) SetViews(path string) {
+// SetRender function allows user to set template location.
+func (nap *NapNap) SetRender(path string) {
 	tmpl, err := template.ParseGlob(path)
 
 	if err != nil {
