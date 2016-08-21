@@ -146,19 +146,24 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 	if len(path) == 0 {
 		panic("router: path couldn't be empty")
 	}
-
-	if path[0:1] == "/" {
-		path = path[1:]
-	} else {
+	if path[0:1] != "/" {
 		panic("router: path was invalid")
 	}
-
+	if len(path) > 1 {
+		path = path[1:]
+	}
 	_logger.debug("path:" + path)
+
+	currentNode := r.tree.rootNode
+	if path == "/" {
+		_logger.debug("lastNode_param:")
+		_logger.debug("method:" + method)
+		currentNode.addHandler(method, handler)
+		return
+	}
 
 	pathArray := strings.Split(path, "/")
 	count := len(pathArray)
-
-	currentNode := r.tree.rootNode
 	pathParams := []string{}
 
 	for index, element := range pathArray {
@@ -226,14 +231,17 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 	_logger.debug("===Find")
 	_logger.debug("method:" + method)
 	_logger.debug("path:" + path)
-	if path[0:1] == "/" {
+	if path[0:1] == "/" && len(path) > 1 {
 		path = path[1:]
+	}
+
+	currentNode := r.tree.rootNode
+	if path == "/" {
+		return currentNode.findHandler(method)
 	}
 
 	pathArray := strings.Split(path, "/")
 	count := len(pathArray)
-
-	currentNode := r.tree.rootNode
 
 	pathParams := make(map[int][]Param)
 	var paramsNum int

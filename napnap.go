@@ -13,7 +13,7 @@ var (
 
 func init() {
 	_logger = &logger{
-		mode: off,
+		mode: debugLevel,
 	}
 }
 
