@@ -1,80 +1,52 @@
 package napnap
 
-import "testing"
+import (
+	"net/http"
+	"testing"
 
-func TestRouterBasicStaticRoute(t *testing.T) {
+	"github.com/stretchr/testify/assert"
+)
+
+func testRoute(t *testing.T, method string, path string) {
+	passed := false
+	_, w, nap := CreateTestContext()
+
 	router := NewRouter()
-
-	router.Add(GET, "/hello/get", func(c *Context) {
-		println("GET Method")
+	router.Add(method, path, func(c *Context) {
+		passed = true
+		c.SetStatus(200)
 	})
+	nap.Use(router)
 
-	router.Add(POST, "/hello/post", func(c *Context) {
-		println("POST Method")
-	})
+	req, _ := http.NewRequest(method, path, nil)
+	nap.ServeHTTP(w, req)
 
-	router.Add(PUT, "/hello/put", func(c *Context) {
-		println("PUT Method")
-	})
+	assert.True(t, passed)
+	assert.Equal(t, 200, w.Code)
+}
 
-	router.Add(DELETE, "/hello/delete", func(c *Context) {
-		println("DELETE Method")
-	})
-
-	println("===== result =====")
-	nap := New()
-	c := NewContext(nap, nil, nil)
-	h := router.Find(GET, "/hello/get", c)
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
-
-	h = router.Find(POST, "/hello/post", c)
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
-
-	h = router.Find(PUT, "/hello/put", c)
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
-
-	h = router.Find(DELETE, "/hello/delete", c)
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
-
-	h = router.Find(GET, "/hello/404", c)
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
+func TestRouterStaticRoute(t *testing.T) {
+	testRoute(t, "GET", "/")
+	testRoute(t, "GET", "/hello")
+	testRoute(t, "POST", "/hello")
+	testRoute(t, "PUT", "/hello/put")
+	testRoute(t, "DELETE", "/hello/Delet")
 }
 
 func TestRouterParameterRoute(t *testing.T) {
+	var name string
+	_, w, nap := CreateTestContext()
+
 	router := NewRouter()
-
-	router.Add(GET, "/users/:user/name", func(c *Context) {
-		name := c.Param("user")
-		println("user: " + name)
+	router.Add(GET, "/users/:name", func(c *Context) {
+		name = c.Param("name")
+		c.SetStatus(200)
 	})
+	nap.Use(router)
 
-	router.Add(GET, "/users/:first/angela", func(c *Context) {
-		first := c.Param("first")
-		println("first: " + first)
-	})
+	req, _ := http.NewRequest("GET", "/users/john", nil)
+	nap.ServeHTTP(w, req)
 
-	router.Add(GET, "/users/:user/phone/:num", func(c *Context) {
-		user := c.Param("user")
-		name := c.Param("num")
-		println("user: " + user)
-		println("name: " + name)
-	})
-	nap := New()
-	c := NewContext(nap, nil, nil)
-	h := router.Find(GET, "/users/jason/angela", c)
-
-	if h == nil {
-		t.Error("handler can't be nil")
-	}
-	h(c)
+	assert.Equal(t, "john", name)
+	assert.Equal(t, 200, w.Code)
 }

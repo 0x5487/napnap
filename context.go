@@ -36,6 +36,7 @@ func NewContext(napnap *NapNap, req *http.Request, writer ResponseWriter) *Conte
 
 // Render returns html format
 func (c *Context) Render(code int, viewName string, data interface{}) (err error) {
+	c.Writer.Header().Set("Content-Type", "text/html; charset=utf-8")
 	c.Writer.WriteHeader(code)
 	c.NapNap.template.ExecuteTemplate(c.Writer, viewName, data)
 	return
