@@ -1,6 +1,10 @@
 package napnap
 
-import "net/http"
+import (
+	"bufio"
+	"net"
+	"net/http"
+)
 
 const (
 	noWritten     = -1
@@ -60,6 +64,13 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.status = statusCode
 	rw.ResponseWriter.WriteHeader(statusCode)
 	rw.committed = true
+}
+
+// Hijack implements the http.Hijacker interface to allow a HTTP handler to
+// take over the connection.
+// See https://golang.org/pkg/net/http/#Hijacker
+func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return rw.ResponseWriter.(http.Hijacker).Hijack()
 }
 
 func (rw *responseWriter) reset(writer http.ResponseWriter) ResponseWriter {
