@@ -127,12 +127,18 @@ func (nap *NapNap) SetRender(path string) {
 	nap.template = template
 }
 
-// Run http server
+// Run will run http server
 func (nap *NapNap) Run(addr string) error {
 	//fmt.Println(fmt.Sprintf("listening on %s", addr))
 	return http.ListenAndServe(addr, nap)
 }
 
+// RunTLS will run http/2 server
+func (nap *NapNap) RunTLS(addr, certFile, keyFile string) error {
+	return http.ListenAndServeTLS(addr, certFile, keyFile, nap)
+}
+
+// RunAll will listen on multiple port
 func (nap *NapNap) RunAll(addrs []string) error {
 	if len(addrs) == 0 {
 		return errors.New("addrs can't be empty")
