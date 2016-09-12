@@ -77,5 +77,6 @@ func (rw *responseWriter) reset(writer http.ResponseWriter) ResponseWriter {
 	rw.ResponseWriter = writer
 	rw.contentLength = noWritten
 	rw.status = defaultStatus
+	rw.committed = false
 	return rw
 }
