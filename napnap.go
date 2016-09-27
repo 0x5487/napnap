@@ -128,14 +128,15 @@ func (nap *NapNap) SetRender(path string) {
 }
 
 // Run will run http server
-func (nap *NapNap) Run(addr string) error {
-	//fmt.Println(fmt.Sprintf("listening on %s", addr))
-	return http.ListenAndServe(addr, nap)
+func (nap *NapNap) Run(engine *Server) error {
+	engine.Handler = nap
+	return engine.ListenAndServe()
 }
 
 // RunTLS will run http/2 server
-func (nap *NapNap) RunTLS(addr, certFile, keyFile string) error {
-	return http.ListenAndServeTLS(addr, certFile, keyFile, nap)
+func (nap *NapNap) RunTLS(engine *Server) error {
+	engine.Handler = nap
+	return engine.ListenAndServeTLS(engine.Config.TLSCertFile, engine.Config.TLSKeyFile)
 }
 
 // RunAll will listen on multiple port
