@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -89,6 +90,11 @@ func (c *Context) Query(key string) string {
 		c.query = c.Request.URL.Query()
 	}
 	return c.query.Get(key)
+}
+
+// QueryInt returns query parameter by key and cast the value to int.
+func (c *Context) QueryInt(key string) (int, error) {
+	return strconv.Atoi(c.Query(key))
 }
 
 // Form returns form parameter by key.
