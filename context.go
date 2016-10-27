@@ -242,6 +242,39 @@ func (c *Context) RequestHeader(key string) string {
 	return c.Request.Header.Get(key)
 }
 
+// DeviceType returns user's device type which includes web, mobile, tab, tv
+func (c *Context) DeviceType(key string) string {
+	userAgent := c.RequestHeader("User-Agent")
+	deviceType := "web"
+
+	if strings.Contains(userAgent, "Android") ||
+		strings.Contains(userAgent, "webOS") ||
+		strings.Contains(userAgent, "iPhone") ||
+		strings.Contains(userAgent, "BlackBerry") ||
+		strings.Contains(userAgent, "Windows Phone") {
+		deviceType = "mobile"
+	} else if strings.Contains(userAgent, "iPad") ||
+		strings.Contains(userAgent, "iPod") ||
+		(strings.Contains(userAgent, "tablet") ||
+			strings.Contains(userAgent, "RX-34") ||
+			strings.Contains(userAgent, "FOLIO")) ||
+		(strings.Contains(userAgent, "Kindle") ||
+			strings.Contains(userAgent, "Mac OS") &&
+				strings.Contains(userAgent, "Silk")) ||
+		(strings.Contains(userAgent, "AppleWebKit") &&
+			strings.Contains(userAgent, "Silk")) {
+		deviceType = "tab"
+	} else if strings.Contains(userAgent, "TV") ||
+		strings.Contains(userAgent, "NetCast") ||
+		strings.Contains(userAgent, "boxee") ||
+		strings.Contains(userAgent, "Kylo") ||
+		strings.Contains(userAgent, "Roku") ||
+		strings.Contains(userAgent, "DLNADOC") {
+		deviceType = "tv"
+	}
+	return deviceType
+}
+
 func (c *Context) reset(w http.ResponseWriter, req *http.Request) {
 	c.Request = req
 	c.Writer = c.Writer.reset(w)
