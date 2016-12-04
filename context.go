@@ -154,6 +154,11 @@ func (c *Context) Param(name string) string {
 	return ""
 }
 
+// ParamInt returns parameter by key and cast the value to int.
+func (c *Context) ParamInt(key string) (int, error) {
+	return strconv.Atoi(c.Param(key))
+}
+
 // RemoteIPAddress returns the remote ip address, it parses
 // X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
 func (c *Context) RemoteIPAddress() string {
