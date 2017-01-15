@@ -1,6 +1,7 @@
 package napnap
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"mime/multipart"
@@ -247,8 +248,16 @@ func (c *Context) RequestHeader(key string) string {
 	return c.Request.Header.Get(key)
 }
 
+func (c *Context) StdContext() context.Context {
+	return c.Request.Context()
+}
+
+func (c *Context) SetStdContext(ctx context.Context) {
+	c.Request = c.Request.WithContext(ctx)
+}
+
 // DeviceType returns user's device type which includes web, mobile, tab, tv
-func (c *Context) DeviceType(key string) string {
+func (c *Context) DeviceType() string {
 	userAgent := c.RequestHeader("User-Agent")
 	deviceType := "web"
 
