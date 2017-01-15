@@ -207,6 +207,7 @@ We are planning to add those features in the future.
 - logging middleware
 
 We support the following features
+- golang standard context 
 - routing features (static, parameterized)
 - custom middleware
 - http/2 (https only)
