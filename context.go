@@ -98,6 +98,15 @@ func (c *Context) QueryInt(key string) (int, error) {
 	return strconv.Atoi(c.Query(key))
 }
 
+// QueryIntWithDefault returns query parameter by key and cast the value to int.  If the value doesn't exist, the default value will be used.
+func (c *Context) QueryIntWithDefault(key string, defaultValue int) (int, error) {
+	data := c.Query(key)
+	if len(data) > 0 {
+		return strconv.Atoi(c.Query(key))
+	}
+	return defaultValue, nil
+}
+
 // Form returns form parameter by key.
 func (c *Context) Form(key string) string {
 	req := c.Request
