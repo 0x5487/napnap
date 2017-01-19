@@ -257,10 +257,14 @@ func (c *Context) RequestHeader(key string) string {
 	return c.Request.Header.Get(key)
 }
 
+// StdContext return golang standard context
 func (c *Context) StdContext() context.Context {
-	return c.Request.Context()
+	ctx := c.Request.Context()
+	ctx = newGContext(ctx, c)
+	return ctx
 }
 
+// SetStdContext allow us to save the golang context to request
 func (c *Context) SetStdContext(ctx context.Context) {
 	c.Request = c.Request.WithContext(ctx)
 }
