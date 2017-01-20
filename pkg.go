@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	contextKey int = iota
+	contextKey = "napnap_contextKey"
 )
 
 func FromContext(ctx gcontext.Context) (*Context, bool) {
