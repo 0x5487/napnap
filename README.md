@@ -31,8 +31,8 @@ func main() {
 	})
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -56,8 +56,8 @@ func main() {
 	router.Head("/my-head", myHeadEndpoint)
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -80,7 +80,8 @@ func main() {
 
 	nap := napnap.New()
 	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -101,8 +102,8 @@ func main() {
 	})
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -123,8 +124,8 @@ func main() {
 	})
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -149,8 +150,8 @@ func main() {
 	})
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 
@@ -177,8 +178,8 @@ func main() {
 	})
 
 	nap := napnap.New()
-	nap.Use(router)
-	nap.Run(":8080") //run on port 8080
+	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
+	nap.Run(httpEngine) 
 }
 ```
 

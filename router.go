@@ -394,11 +394,6 @@ func (n *node) findHandler(method string) HandlerFunc {
 }
 
 /*
-// SetHTTPErrorHandler registers a custom Echo.HTTPErrorHandler.
-func (nap *NapNap) SetHTTPErrorHandler(h HTTPErrorHandler) {
-	//nap.httpErrorHandler = h
-}
-
 type (
 	//MiddlewareFunc func(c *Context, next HandlerFunc)
 	// HTTPErrorHandler is a centralized HTTP error handler.
