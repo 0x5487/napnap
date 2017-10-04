@@ -4,6 +4,7 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"path"
 	"sync"
 )
 
@@ -50,10 +51,11 @@ func WrapHandler(h http.Handler) HandlerFunc {
 }
 
 type NapNap struct {
-	pool       sync.Pool
-	handlers   []MiddlewareHandler
-	middleware middleware
-	template   *template.Template
+	pool             sync.Pool
+	handlers         []MiddlewareHandler
+	middleware       middleware
+	template         *template.Template
+	templateRootPath string
 
 	ForwardRemoteIpAddress bool
 	MaxRequestBodySize     int64
@@ -113,18 +115,16 @@ func (nap *NapNap) SetTemplate(t *template.Template) {
 }
 
 // SetRender function allows user to set template location.
-func (nap *NapNap) SetRender(path string) {
-	tmpl, err := template.ParseGlob(path)
-
-	if err != nil {
-		panic(err)
-	}
-
+func (nap *NapNap) SetRender(templateRootPath string) {
+	sharedTemplatePath := path.Join(templateRootPath, "shares/*")
+	tmpl, err := template.ParseGlob(sharedTemplatePath)
 	template := template.Must(tmpl, err)
 	if template == nil {
 		_logger.debug("no template")
+		template = template.New("")
 	}
 	nap.template = template
+	nap.templateRootPath = templateRootPath
 }
 
 // Run will run http server

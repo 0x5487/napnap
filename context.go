@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -37,11 +38,23 @@ func NewContext(napnap *NapNap, req *http.Request, writer ResponseWriter) *Conte
 }
 
 // Render returns html format
-func (c *Context) Render(code int, viewName string, data interface{}) (err error) {
+func (c *Context) Render(code int, viewName string, data interface{}) error {
 	c.Writer.Header().Set("Content-Type", "text/html; charset=utf-8")
 	c.Writer.WriteHeader(code)
-	c.NapNap.template.ExecuteTemplate(c.Writer, viewName, data)
-	return
+
+	t, err := c.NapNap.template.Clone()
+	if err != nil {
+		return err
+	}
+
+	viewPath := path.Join(c.NapNap.templateRootPath, "views", viewName)
+	t, err = t.ParseFiles(viewPath)
+	if err != nil {
+		return err
+	}
+
+	t.ExecuteTemplate(c.Writer, viewName, data)
+	return nil
 }
 
 // String returns string format
