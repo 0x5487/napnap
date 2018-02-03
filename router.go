@@ -12,6 +12,10 @@ type tree struct {
 
 type kind uint8
 
+// example: /user/:jason/count
+// params: ["user", "jason", count]
+// pNames: current node ["jason"]
+
 type node struct {
 	parent    *node
 	children  []*node
@@ -65,6 +69,7 @@ var (
 const (
 	skind kind = iota
 	pkind
+	akind
 )
 
 // NewRouter function will create a new router instance
@@ -146,7 +151,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 	if len(path) == 0 {
 		panic("router: path couldn't be empty")
 	}
-	if path[0:1] != "/" {
+	if path[0] != '/' {
 		panic("router: path was invalid")
 	}
 	if len(path) > 1 {
@@ -156,8 +161,6 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 
 	currentNode := r.tree.rootNode
 	if path == "/" {
-		_logger.debug("lastNode_param:")
-		_logger.debug("method:" + method)
 		currentNode.addHandler(method, handler)
 		return
 	}
@@ -172,10 +175,11 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 		}
 
 		var childNode *node
-		if element[0:1] == ":" {
-			// that is parameter node
+		firstSymbol := element[0]
+		if firstSymbol == ':' {
+			// this is parameter node
 			pName := element[1:]
-			_logger.debug("parameterName:" + pName)
+			_logger.debug("parameter_node_pname:" + pName)
 			childNode = currentNode.findChildByKind(pkind)
 			if childNode == nil {
 				childNode = newNode(pName, pkind)
@@ -191,13 +195,26 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 
 			if isFound == false {
 				childNode.pNames = append(childNode.pNames, pName)
-				_logger.debug("added_parameter_name:" + pName)
+				_logger.debug("add_parameter_name:" + pName)
+			}
+
+			pathParams = append(pathParams, pName)
+
+		} else if firstSymbol == '*' {
+			// this is match any node.  We should allow one match any node only.
+			pName := element[1:]
+			_logger.debug("match_node_pname:" + pName)
+			childNode = currentNode.findChildByKind(akind)
+			if childNode == nil {
+				childNode = newNode(pName, akind)
+				currentNode.addChild(childNode)
+				childNode.pNames = append(childNode.pNames, pName)
 			}
 
 			pathParams = append(pathParams, pName)
 
 		} else {
-			// that is static node
+			// this is static node
 			childNode = currentNode.findChildByName(element)
 			if childNode == nil {
 				childNode = newNode(element, skind)
@@ -208,21 +225,11 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 		// last node in the path
 		if count == index+1 {
 			childNode.params = pathParams
-			_logger.debug("lastNode_param:")
-			_logger.debug("method:" + method)
 			childNode.addHandler(method, handler)
 		}
 
 		currentNode = childNode
 	}
-
-	//test
-	/*
-		testNode := r.tree.rootNode.children[0].children[0]
-		println("test_node_name: " + testNode.name)
-		if method == POST {
-			testNode.handler.post()
-		}*/
 
 }
 
@@ -231,7 +238,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 	_logger.debug("===Find")
 	_logger.debug("method:" + method)
 	_logger.debug("path:" + path)
-	if path[0:1] == "/" && len(path) > 1 {
+	if path[0] == '/' && len(path) > 1 {
 		path = path[1:]
 	}
 
@@ -247,13 +254,15 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 	var paramsNum int
 
 	for index, element := range pathArray {
+		// find static node first
 		childNode := currentNode.findChildByName(element)
 
 		if childNode == nil {
-			// static node was not found and is looking for parameter node
+			// looking for parameter node
 			childNode = currentNode.findChildByKind(pkind)
 
 			if childNode != nil {
+				_logger.debugf("parameter node: %s", element)
 				var newParams []Param
 				for _, pName := range childNode.pNames {
 					param := Param{Key: pName, Value: element}
@@ -261,6 +270,32 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 				}
 				pathParams[paramsNum] = newParams
 				paramsNum++
+			}
+		}
+
+		if childNode == nil {
+			// looking for match any node
+			childNode = currentNode.findChildByKind(akind)
+
+			if childNode != nil {
+				_logger.debugf("match node: %s", element)
+				start := 0
+				for i := 0; i < index; i++ {
+					start = 1 + len(pathArray[0])
+				}
+				_logger.debugf("start: %d", start)
+				_logger.debugf("pname count: %d", len(childNode.pNames))
+				var newParams []Param
+				for _, pName := range childNode.pNames {
+					val := path[start:]
+					_logger.debugf("val: %s", val)
+					param := Param{Key: pName, Value: val}
+					newParams = append(newParams, param)
+				}
+				pathParams[paramsNum] = newParams
+				paramsNum++
+
+				index = count - 1
 			}
 		}
 
@@ -278,20 +313,19 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 				return nil
 			}
 
-			var newParams []Param
-			for _, pName := range childNode.pNames {
-				param := Param{Key: pName, Value: element}
-				newParams = append(newParams, param)
-			}
-			pathParams[paramsNum] = newParams
-			paramsNum++
+			// var newParams []Param
+			// for _, pName := range childNode.pNames {
+			// 	param := Param{Key: pName, Value: element}
+			// 	newParams = append(newParams, param)
+			// }
+			// pathParams[paramsNum] = newParams
+			// paramsNum++
 
 			paramsNum = 0
 			//println("params_count:", len(pathParams))
 			_logger.debug("lastNode_params_count:", len(childNode.params))
 			for _, validParam := range childNode.params {
 				for _, p := range pathParams[paramsNum] {
-					//println("p_value:", index, p.Key+"&"+p.Value)
 					if validParam == p.Key {
 						_logger.debug("matched: " + validParam + "," + p.Value)
 						c.params = append(c.params, p)

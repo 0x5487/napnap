@@ -1,6 +1,7 @@
 package napnap
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -48,5 +49,30 @@ func TestRouterParameterRoute(t *testing.T) {
 	nap.ServeHTTP(w, req)
 
 	assert.Equal(t, "john", name)
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestRouterMatchAnyRoute(t *testing.T) {
+	var action string
+	_, w, nap := CreateTestContext()
+
+	router := NewRouter()
+	router.Add(GET, "/video/:action1", func(c *Context) {
+		fmt.Print("action1")
+		action = c.Param("action1")
+		c.SetStatus(201)
+	})
+
+	router.Add(GET, "/images/*action2", func(c *Context) {
+		fmt.Print("action2")
+		action = c.Param("action2")
+		c.SetStatus(200)
+	})
+	nap.Use(router)
+
+	req, _ := http.NewRequest("GET", "/images/play/ball.jpg", nil)
+	nap.ServeHTTP(w, req)
+
+	assert.Equal(t, "play/ball.jpg", action)
 	assert.Equal(t, 200, w.Code)
 }
