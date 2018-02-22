@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -138,6 +140,24 @@ func (c *Context) Form(key string) string {
 func (c *Context) FormFile(key string) (*multipart.FileHeader, error) {
 	_, fh, err := c.Request.FormFile(key)
 	return fh, err
+}
+
+// SaveUploadedFile uploads the form file to specific dst.
+func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) error {
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	io.Copy(out, src)
+	return nil
 }
 
 // Get retrieves data from the context.
