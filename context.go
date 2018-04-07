@@ -202,21 +202,25 @@ func (c *Context) ParamInt(key string) (int, error) {
 	return strconv.Atoi(c.Param(key))
 }
 
-// RemoteIPAddress returns the remote ip address, it parses
+// ClientIP returns the remote ip address, it parses
 // X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
-func (c *Context) RemoteIPAddress() string {
-	if c.NapNap.ForwardRemoteIpAddress {
-		remoteIpAddr := strings.TrimSpace(c.Request.Header.Get("X-Real-Ip"))
-		if len(remoteIpAddr) > 0 {
-			return remoteIpAddr
+func (c *Context) ClientIP() string {
+	if c.NapNap.ForwardedByClientIP {
+		clientIP := c.RequestHeader("X-Forwarded-For")
+		if index := strings.IndexByte(clientIP, ','); index >= 0 {
+			clientIP = clientIP[0:index]
 		}
-		remoteIpAddr = c.Request.Header.Get("X-Forwarded-For")
-		if index := strings.IndexByte(remoteIpAddr, ','); index >= 0 {
-			remoteIpAddr = remoteIpAddr[0:index]
+		clientIP = strings.TrimSpace(clientIP)
+		if len(clientIP) > 0 {
+			return clientIP
 		}
-		remoteIpAddr = strings.TrimSpace(remoteIpAddr)
-		if len(remoteIpAddr) > 0 {
-			return remoteIpAddr
+		clientIP = strings.TrimSpace(c.RequestHeader("X-Real-Ip"))
+		if len(clientIP) > 0 {
+			return clientIP
+		}
+		clientIP = strings.TrimSpace(clientIP)
+		if len(clientIP) > 0 {
+			return clientIP
 		}
 	}
 	if ip, _, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr)); err == nil {
