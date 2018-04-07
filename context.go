@@ -202,8 +202,9 @@ func (c *Context) ParamInt(key string) (int, error) {
 	return strconv.Atoi(c.Param(key))
 }
 
-// ClientIP returns the remote ip address, it parses
+// ClientIP implements a best effort algorithm to return the real client IP, it parses
 // X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
+// Use X-Forwarded-For before X-Real-Ip as nginx uses X-Real-Ip with the proxy's IP.
 func (c *Context) ClientIP() string {
 	if c.NapNap.ForwardedByClientIP {
 		clientIP := c.RequestHeader("X-Forwarded-For")
