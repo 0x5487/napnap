@@ -217,13 +217,49 @@ func main() {
 }
 ```
 
+#### combine with autocert
+
+Let's Encrypt disable **tls challenge**, so we can only use **http challenge** with autocert(**dns challenge** not implemented)
+
+notes:
+
+we need to bind http service on 80 port, https service on 443 port. First time, you need to wait a short time for creating and downloading certificate .
+
+```go
+package main
+
+import "github.com/jasonsoft/napnap"
+
+func main() {
+	router := napnap.NewRouter()
+
+	projRoot, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	config := napnap.Config{
+		Domain:        "exmaple.com", // multi domain support ex. "abc.com, 123.com"
+		CertCachePath: path.Join(projRoot, ".certCache"),
+	}
+	server := napnap.NewHttpEngineWithConfig(&config)
+
+	nap := napnap.New()
+	nap.Use(router)
+
+	nap.RunAutoTLS(server)
+}
+```
+
+
+
 ## Roadmap
 We are planning to add those features in the future.
 - logging middleware
 
 We support the following features
 - golang standard context 
-- routing features (static, parameterized)
+- routing features (static, parameterized, any)
 - custom middleware
 - http/2 (https only)
 - rendering

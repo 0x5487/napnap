@@ -1,11 +1,15 @@
 package napnap
 
 import (
+	"crypto/tls"
 	"errors"
 	"html/template"
 	"net/http"
 	"path"
+	"strings"
 	"sync"
+
+	"golang.org/x/crypto/acme/autocert"
 )
 
 var (
@@ -138,6 +142,32 @@ func (nap *NapNap) Run(engine *Server) error {
 func (nap *NapNap) RunTLS(engine *Server) error {
 	engine.Handler = nap
 	return engine.ListenAndServeTLS(engine.Config.TLSCertFile, engine.Config.TLSKeyFile)
+}
+
+func (nap *NapNap) RunAutoTLS(engine *Server) error {
+
+	whiteLists := []string{}
+
+	for _, domain := range strings.Split(engine.Config.Domain, ",") {
+		whiteLists = append(whiteLists, strings.TrimSpace(domain))
+	}
+
+	m := &autocert.Manager{
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(whiteLists...),
+	}
+
+	if engine.Config.CertCachePath != "" {
+		m.Cache = autocert.DirCache(engine.Config.CertCachePath)
+	}
+
+	go http.ListenAndServe(":http", m.HTTPHandler(nap))
+
+	// https' settings
+	engine.Addr = ":https"
+	engine.TLSConfig = &tls.Config{GetCertificate: m.GetCertificate}
+	engine.Handler = nap
+	return engine.ListenAndServeTLS("", "")
 }
 
 // RunAll will listen on multiple port

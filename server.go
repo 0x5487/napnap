@@ -6,11 +6,13 @@ import (
 )
 
 type Config struct {
-	Addr         string
-	TLSCertFile  string
-	TLSKeyFile   string
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
+	Addr          string
+	Domain        string // abc123.com, abc456.com
+	CertCachePath string
+	TLSCertFile   string
+	TLSKeyFile    string
+	ReadTimeout   time.Duration
+	WriteTimeout  time.Duration
 }
 
 type Server struct {
