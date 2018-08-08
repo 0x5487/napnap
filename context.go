@@ -73,7 +73,7 @@ func (c *Context) JSON(code int, i interface{}) (err error) {
 	if err != nil {
 		return err
 	}
-	c.Writer.Header().Set("Content-Type", "application/json")
+	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Writer.WriteHeader(code)
 	c.Writer.Write(b)
 	return
