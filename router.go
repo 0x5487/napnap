@@ -281,7 +281,7 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 				_logger.debugf("match node: %s", element)
 				start := 0
 				for i := 0; i < index; i++ {
-					start = 1 + len(pathArray[0])
+					start += 1 + len(pathArray[i])
 				}
 				_logger.debugf("start: %d", start)
 				_logger.debugf("pname count: %d", len(childNode.pNames))
