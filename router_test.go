@@ -53,7 +53,7 @@ func TestRouterParameterRoute(t *testing.T) {
 }
 
 func TestRouterMatchAnyRoute(t *testing.T) {
-	var action string
+	var action, helo string
 	_, w, nap := CreateTestContext()
 
 	router := NewRouter()
@@ -68,11 +68,23 @@ func TestRouterMatchAnyRoute(t *testing.T) {
 		action = c.Param("action2")
 		c.SetStatus(200)
 	})
+
+	router.Add(GET, "/v1/:helo/images/*action2", func(c *Context) {
+		helo = c.Param("helo")
+		action = c.Param("action2")
+		c.SetStatus(200)
+	})
+
 	nap.Use(router)
 
 	req, _ := http.NewRequest("GET", "/images/play/ball.jpg", nil)
 	nap.ServeHTTP(w, req)
-
 	assert.Equal(t, "play/ball.jpg", action)
+	assert.Equal(t, 200, w.Code)
+
+	req, _ = http.NewRequest("GET", "/v1/aabbc/images/hapyy-ball.jpg", nil)
+	nap.ServeHTTP(w, req)
+	assert.Equal(t, "hapyy-ball.jpg", action)
+	assert.Equal(t, "aabbc", helo)
 	assert.Equal(t, 200, w.Code)
 }

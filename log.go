@@ -23,25 +23,24 @@ func newLog() *logger {
 
 func (l *logger) debug(v ...interface{}) {
 	if l.mode <= debugLevel {
-		log.Println(v)
-
+		log.Println(v...)
 	}
 }
 
 func (l *logger) debugf(format string, v ...interface{}) {
 	if l.mode <= debugLevel {
-		log.Printf(format, v)
+		log.Printf(format, v...)
 	}
 }
 
 func (l *logger) fatal(v ...interface{}) {
 	if l.mode <= fatalLevel {
-		log.Fatal(v)
+		log.Fatal(v...)
 	}
 }
 
 func (l *logger) fatalf(format string, v ...interface{}) {
 	if l.mode <= fatalLevel {
-		log.Fatalf(format, v)
+		log.Fatalf(format, v...)
 	}
 }
