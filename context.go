@@ -55,7 +55,10 @@ func (c *Context) Render(code int, viewName string, data interface{}) error {
 		return err
 	}
 
-	t.ExecuteTemplate(c.Writer, viewName, data)
+	err = t.ExecuteTemplate(c.Writer, viewName, data)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
