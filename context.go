@@ -209,23 +209,21 @@ func (c *Context) ParamInt(key string) (int, error) {
 // X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
 // Use X-Forwarded-For before X-Real-Ip as nginx uses X-Real-Ip with the proxy's IP.
 func (c *Context) ClientIP() string {
-	if c.NapNap.ForwardedByClientIP {
-		clientIP := c.RequestHeader("X-Forwarded-For")
-		if index := strings.IndexByte(clientIP, ','); index >= 0 {
-			clientIP = clientIP[0:index]
-		}
-		clientIP = strings.TrimSpace(clientIP)
-		if len(clientIP) > 0 {
-			return clientIP
-		}
-		clientIP = strings.TrimSpace(c.RequestHeader("X-Real-Ip"))
-		if len(clientIP) > 0 {
-			return clientIP
-		}
-		clientIP = strings.TrimSpace(clientIP)
-		if len(clientIP) > 0 {
-			return clientIP
-		}
+	clientIP := c.RequestHeader("X-Forwarded-For")
+	if index := strings.IndexByte(clientIP, ','); index >= 0 {
+		clientIP = clientIP[0:index]
+	}
+	clientIP = strings.TrimSpace(clientIP)
+	if len(clientIP) > 0 {
+		return clientIP
+	}
+	clientIP = strings.TrimSpace(c.RequestHeader("X-Real-Ip"))
+	if len(clientIP) > 0 {
+		return clientIP
+	}
+	clientIP = strings.TrimSpace(clientIP)
+	if len(clientIP) > 0 {
+		return clientIP
 	}
 	if ip, _, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr)); err == nil {
 		return ip

@@ -61,17 +61,15 @@ type NapNap struct {
 	template         *template.Template
 	templateRootPath string
 
-	ForwardedByClientIP bool
-	MaxRequestBodySize  int64
+	MaxRequestBodySize int64
 }
 
 // New returns a new NapNap instance
 func New(mHandlers ...MiddlewareHandler) *NapNap {
 	nap := &NapNap{
-		handlers:            mHandlers,
-		middleware:          build(mHandlers),
-		MaxRequestBodySize:  10485760, // default 10MB for request body size
-		ForwardedByClientIP: true,
+		handlers:           mHandlers,
+		middleware:         build(mHandlers),
+		MaxRequestBodySize: 10485760, // default 10MB for request body size
 	}
 
 	nap.pool.New = func() interface{} {

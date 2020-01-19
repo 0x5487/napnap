@@ -10,7 +10,6 @@ import (
 
 func TestContextRemoteIpAddress(t *testing.T) {
 	c, _, _ := CreateTestContext()
-	c.NapNap.ForwardedByClientIP = true
 
 	c.Request, _ = http.NewRequest("POST", "/", nil)
 
