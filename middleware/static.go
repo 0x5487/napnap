@@ -1,9 +1,11 @@
-package napnap
+package middleware
 
 import (
 	"net/http"
 	"path"
 	"strings"
+
+	"github.com/jasonsoft/napnap"
 )
 
 // Static is a middleware handler that serves static files in the given directory/filesystem.
@@ -26,7 +28,7 @@ func NewStatic(dir string) *Static {
 	}
 }
 
-func (s *Static) Invoke(c *Context, next HandlerFunc) {
+func (s *Static) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	r := c.Request
 	if r.Method != "GET" && r.Method != "HEAD" {
 		next(c)

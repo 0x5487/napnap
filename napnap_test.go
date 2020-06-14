@@ -38,5 +38,34 @@ func TestDefaultHandlers(t *testing.T) {
 }
 
 func TestMidderwareOrder(t *testing.T) {
+	_, w, nap := CreateTestContext()
 
+	m1 := false
+	nap.UseFunc(func(c *Context, next HandlerFunc) {
+		m1 = true
+		next(c)
+	})
+
+	m2 := false
+	nap.UseFunc(func(c *Context, next HandlerFunc) {
+		if m1 && m2 == false {
+			m2 = true
+		}
+		next(c)
+	})
+
+	m3 := false
+	nap.Get("/hello", func(c *Context) error {
+		if m2 && m3 == false {
+			m3 = true
+		}
+		return nil
+	})
+
+	req, _ := http.NewRequest("GET", "/hello", nil)
+	nap.ServeHTTP(w, req)
+
+	assert.Equal(t, true, m1)
+	assert.Equal(t, true, m2)
+	assert.Equal(t, true, m3)
 }

@@ -2,7 +2,7 @@
 // https://github.com/rs/cors/blob/master/cors.go
 // http://www.html5rocks.com/en/tutorials/cors/
 
-package napnap
+package middleware
 
 import (
 	"log"
@@ -10,6 +10,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/jasonsoft/napnap"
 )
 
 const toLower = 'a' - 'A'
@@ -212,7 +214,7 @@ func NewCors(options Options) *Cors {
 }
 
 // Invoke funcion will be called by NapNap
-func (cors *Cors) Invoke(c *Context, next HandlerFunc) {
+func (cors *Cors) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	if c.Request.Method == "OPTIONS" {
 		cors.logf("ServeHTTP: Preflight request")
 		cors.handlePreflight(c.Writer, c.Request)

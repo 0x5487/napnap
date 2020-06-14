@@ -96,7 +96,9 @@ func (r *Router) Invoke(c *Context, next HandlerFunc) {
 
 	var err error
 	if h == nil {
-		err = r.nap.NotFoundHandler(c)
+		if r.nap.NotFoundHandler != nil {
+			err = r.nap.NotFoundHandler(c)
+		}
 	} else {
 		err = h(c)
 	}

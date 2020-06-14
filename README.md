@@ -20,20 +20,18 @@
 package main
 
 import (
+	"net/http"
 	"github.com/jasonsoft/napnap"
 )
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Get("/hello-world", func(c *napnap.Context) {
-		c.String(200, "Hello, World")
+	nap.Get("/", func(c *napnap.Context) error {
+		return c.String(200, "Hello World")
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -46,20 +44,17 @@ import (
 )
 
 func main() {
-	router := napnap.NewRouter()
-
-	router.Get("/my-get", myHeadEndpoint)
-	router.Post("/my-post", myPostEndpoint)
-	router.Put("/my-put", myPutEndpoint)
-	router.Delete("/my-delete", myDeleteEndpoint)
-	router.Patch("/my-patch", myPatchEndpoint)
-	router.Options("/my-options", myOptionsEndpoint)
-	router.Head("/my-head", myHeadEndpoint)
-
 	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+
+	nap.Get("/my-get", myHeadEndpoint)
+	nap.Post("/my-post", myPostEndpoint)
+	nap.Put("/my-put", myPutEndpoint)
+	nap.Delete("/my-delete", myDeleteEndpoint)
+	nap.Patch("/my-patch", myPatchEndpoint)
+	nap.Options("/my-options", myOptionsEndpoint)
+	nap.Head("/my-head", myHeadEndpoint)
+
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -73,25 +68,22 @@ import (
 )
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Get("/users/:name", func(c *napnap.Context) {
+	nap.Get("/users/:name", func(c *napnap.Context) error {
 		name := c.Param("name")
-		c.String(200, "Hello, "+name)
+		return c.String(200, "Hello, "+name)
 	})
 
 	// /videos/sports/basketball/1.mp4
 	// /videos/2.mp4
 	// both path will route to the endpoint
-	router.Get("/videos/*video_id", func(c *napnap.Context) {
+	nap.Get("/videos/*video_id", func(c *napnap.Context) error {
 		id := c.Param("video_id")
-		c.String(200, "video id is, "+id)
+		return c.String(200, "video id is, "+id)
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -104,17 +96,14 @@ import (
 )
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Get("/test?page=1", func(c *napnap.Context) {
+	nap.Get("/test?page=1", func(c *napnap.Context) error {
 		page := c.Query("page") //get query string value
-		c.String(200, page)
+		return c.String(200, page)
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -127,17 +116,14 @@ import (
 )
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Post("/post-form-value", func(c *napnap.Context) {
+	nap.Post("/post-form-value", func(c *napnap.Context) error {
 		userId := c.Form("user_id") //get post form value
-		c.String(200, userId)
+		return c.String(200, userId)
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -149,22 +135,22 @@ package main
 import "github.com/jasonsoft/napnap"
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Post("/json-binding", func(c *napnap.Context) {
+	nap.Post("/json-binding", func(c *napnap.Context) error {
 		var person struct {
 			Name string `json: name`
 			Age  int    `json: age`
 		}
-		if c.BindJSON(&person) == nil {
-			c.String(200, person.Name)
-		}
+        err := c.BindJSON(&person)
+        if err != nil {
+            return err
+        }
+		c.String(200, person.Name)
+        return nil
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap)
 }
 ```
 
@@ -176,9 +162,9 @@ package main
 import "github.com/jasonsoft/napnap"
 
 func main() {
-	router := napnap.NewRouter()
+	nap := napnap.New()
 
-	router.Get("/json-rendering", func(c *napnap.Context) {
+	nap.Get("/json-rendering", func(c *napnap.Context) error {
 		var person struct {
 			Name string `json: name`
 			Age  int    `json: age`
@@ -187,13 +173,10 @@ func main() {
 		person.Name = "napnap"
 		person.Age = 18
 
-		c.JSON(200, person)
+		return c.JSON(200, person)
 	})
 
-	nap := napnap.New()
-	nap.Use(router)
-	httpEngine := napnap.NewHttpEngine(":8080")  //run on port 8080
-	nap.Run(httpEngine) 
+	http.ListenAndServe("127.0.0.1:10080", nap) 
 }
 ```
 

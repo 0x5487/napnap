@@ -1,4 +1,4 @@
-package napnap
+package middleware
 
 import (
 	"compress/gzip"
@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/jasonsoft/napnap"
 )
 
 // These compression constants are copied from the compress/gzip package.
@@ -29,8 +31,8 @@ const (
 // wrapped in.
 type gzipResponseWriter struct {
 	gz        *gzip.Writer
-	napWriter ResponseWriter
-	ResponseWriter
+	napWriter napnap.ResponseWriter
+	napnap.ResponseWriter
 }
 
 // Write writes bytes to the gzip.Writer. It will also set the Content-Type
@@ -69,7 +71,7 @@ func NewGzip(level int) *gzipMiddleware {
 }
 
 // Invoke wraps the http.ResponseWriter with a gzip.Writer.
-func (h *gzipMiddleware) Invoke(c *Context, next HandlerFunc) {
+func (h *gzipMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	r := c.Request
 	w := c.Writer
 	// Skip compression if the client doesn't accept gzip encoding.

@@ -63,23 +63,29 @@ func (c *Context) Render(code int, viewName string, data interface{}) error {
 }
 
 // String returns string format
-func (c *Context) String(code int, s string) (err error) {
+func (c *Context) String(code int, s string) error {
 	c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	c.Writer.WriteHeader(code)
-	c.Writer.Write([]byte(s))
-	return
+	_, err := c.Writer.Write([]byte(s))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // JSON returns json format
-func (c *Context) JSON(code int, i interface{}) (err error) {
+func (c *Context) JSON(code int, i interface{}) error {
 	b, err := json.Marshal(i)
 	if err != nil {
 		return err
 	}
 	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Writer.WriteHeader(code)
-	c.Writer.Write(b)
-	return
+	_, err = c.Writer.Write(b)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Redirect returns a HTTP redirect to the specific location.

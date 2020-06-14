@@ -80,12 +80,13 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
 		MaxRequestBodySize: 10485760, // default 10MB for request body size
 	}
 
-	nap.router = NewRouter(nap)
-	nap.Use(nap.router)
 	nap.pool.New = func() interface{} {
 		rw := NewResponseWriter()
 		return NewContext(nap, nil, rw)
 	}
+
+	nap.router = NewRouter(nap)
+	nap.Use(nap.router)
 
 	return nap
 }
@@ -151,27 +152,6 @@ func (nap *NapNap) Options(path string, handler HandlerFunc) {
 // Head is a shortcut for router.Add("HEAD", path, handle)
 func (nap *NapNap) Head(path string, handler HandlerFunc) {
 	nap.router.Add(HEAD, path, handler)
-}
-
-func build(handlers []MiddlewareHandler) middleware {
-	var next middleware
-
-	if len(handlers) == 0 {
-		return voidMiddleware()
-	} else if len(handlers) > 1 {
-		next = build(handlers[1:])
-	} else {
-		next = voidMiddleware()
-	}
-
-	return middleware{handlers[0], &next}
-}
-
-func voidMiddleware() middleware {
-	return middleware{
-		MiddlewareFunc(func(c *Context, next HandlerFunc) {}),
-		&middleware{},
-	}
 }
 
 // SetTemplate function allows user to set their own template instance.
@@ -260,4 +240,25 @@ func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	c.reset(w, req)
 	nap.middleware.Execute(c)
 	nap.pool.Put(c)
+}
+
+func build(handlers []MiddlewareHandler) middleware {
+	var next middleware
+
+	if len(handlers) == 0 {
+		return voidMiddleware()
+	} else if len(handlers) > 1 {
+		next = build(handlers[1:])
+	} else {
+		next = voidMiddleware()
+	}
+
+	return middleware{handlers[0], &next}
+}
+
+func voidMiddleware() middleware {
+	return middleware{
+		MiddlewareFunc(func(c *Context, next HandlerFunc) {}),
+		&middleware{},
+	}
 }
