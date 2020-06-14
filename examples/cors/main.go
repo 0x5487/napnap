@@ -20,5 +20,5 @@ func main() {
 		return c.String(200, "Hello World")
 	})
 
-	http.ListenAndServe("127.0.0.1:10080", nap)
+	_ = http.ListenAndServe("127.0.0.1:10080", nap)
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestDefaultHandlers(t *testing.T) {
-	_, w, nap := CreateTestContext()
+	_, w, nap := createTestContext()
 
 	isError := false
 	nap.ErrorHandler = func(c *Context, err error) {
@@ -38,7 +38,7 @@ func TestDefaultHandlers(t *testing.T) {
 }
 
 func TestMidderwareOrder(t *testing.T) {
-	_, w, nap := CreateTestContext()
+	_, w, nap := createTestContext()
 
 	m1 := false
 	nap.UseFunc(func(c *Context, next HandlerFunc) {

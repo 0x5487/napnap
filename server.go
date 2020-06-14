@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Config ...
 type Config struct {
 	Addr          string
 	Domain        string // abc123.com, abc456.com
@@ -15,12 +16,14 @@ type Config struct {
 	WriteTimeout  time.Duration
 }
 
+// Server ...
 type Server struct {
 	*http.Server
 	Config *Config
 }
 
-func NewHttpEngine(addr string) *Server {
+// NewHTTPEngine ...
+func NewHTTPEngine(addr string) *Server {
 	s := &Server{
 		Server: new(http.Server),
 	}
@@ -28,7 +31,8 @@ func NewHttpEngine(addr string) *Server {
 	return s
 }
 
-func NewHttpEngineWithConfig(c *Config) *Server {
+// NewHTTPEngineWithConfig ...
+func NewHTTPEngineWithConfig(c *Config) *Server {
 	s := &Server{
 		Server: new(http.Server),
 		Config: c,

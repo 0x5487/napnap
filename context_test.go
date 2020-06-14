@@ -8,7 +8,7 @@ import (
 )
 
 func TestContextRemoteIpAddress(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 
 	c.Request, _ = http.NewRequest("POST", "/", nil)
 
@@ -28,7 +28,7 @@ func TestContextRemoteIpAddress(t *testing.T) {
 }
 
 func TestContextContentType(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 
 	c.Request, _ = http.NewRequest("POST", "/", nil)
 	c.Request.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -37,14 +37,14 @@ func TestContextContentType(t *testing.T) {
 }
 
 func TestContextSetCookie(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 
 	c.SetCookie("user", "jason", 1, "/", "localhost", true, true)
 	assert.Equal(t, "user=jason; Path=/; Domain=localhost; Max-Age=1; HttpOnly; Secure", c.Writer.Header().Get("Set-Cookie"))
 }
 
 func TestContextGetCookie(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 
 	c.Request, _ = http.NewRequest("GET", "/get", nil)
 	c.Request.Header.Set("Cookie", "user=jason")
@@ -53,7 +53,7 @@ func TestContextGetCookie(t *testing.T) {
 }
 
 func TestContextSetRespHeader(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 	c.RespHeader("Content-Type", "text/plain")
 	c.RespHeader("X-Custom", "value")
 
@@ -69,7 +69,7 @@ func TestContextSetRespHeader(t *testing.T) {
 }
 
 func TestContextRedirectWithAbsolutePath(t *testing.T) {
-	c, w, _ := CreateTestContext()
+	c, w, _ := createTestContext()
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 	c.Redirect(302, "http://google.com")
 
@@ -78,7 +78,7 @@ func TestContextRedirectWithAbsolutePath(t *testing.T) {
 }
 
 func TestContextRedirectWithRelativePath(t *testing.T) {
-	c, w, _ := CreateTestContext()
+	c, w, _ := createTestContext()
 	c.Request, _ = http.NewRequest("POST", "http://example.com", nil)
 
 	c.Redirect(301, "/path")
@@ -87,7 +87,7 @@ func TestContextRedirectWithRelativePath(t *testing.T) {
 }
 
 func TestContextSetGet(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 	c.Set("foo", "bar")
 
 	value, err := c.Get("foo")
@@ -103,7 +103,7 @@ func TestContextSetGet(t *testing.T) {
 }
 
 func TestContextSetGetValues(t *testing.T) {
-	c, _, _ := CreateTestContext()
+	c, _, _ := createTestContext()
 	c.Set("string", "this is a string")
 	c.Set("int32", int32(-42))
 	c.Set("int64", int64(42424242424242))
@@ -126,7 +126,7 @@ func TestContextSetGetValues(t *testing.T) {
 // Tests that the response executes the templates
 // and responds with Content-Type set to text/html
 // func TestContextRenderHTML(t *testing.T) {
-// 	c, w, nap := CreateTestContext()
+// 	c, w, nap := createTestContext()
 // 	templ := template.Must(template.New("t").Parse(`Hello {{.name}}`))
 // 	nap.SetTemplate(templ)
 

@@ -9,9 +9,9 @@ import (
 
 func testRoute(t *testing.T, method string, path string) {
 	passed := false
-	_, w, nap := CreateTestContext()
+	_, w, nap := createTestContext()
 
-	router := NewRouter(nap)
+	router := newRouter(nap)
 	router.Add(method, path, func(c *Context) error {
 		passed = true
 		c.SetStatus(200)
@@ -36,9 +36,9 @@ func TestRouterStaticRoute(t *testing.T) {
 
 func TestRouterParameterRoute(t *testing.T) {
 	var name string
-	_, w, nap := CreateTestContext()
+	_, w, nap := createTestContext()
 
-	router := NewRouter(nap)
+	router := newRouter(nap)
 	router.Add(GET, "/users/:name", func(c *Context) error {
 		name = c.Param("name")
 		c.SetStatus(200)
@@ -55,9 +55,9 @@ func TestRouterParameterRoute(t *testing.T) {
 
 func TestRouterMatchAnyRoute(t *testing.T) {
 	var action, helo string
-	_, w, nap := CreateTestContext()
+	_, w, nap := createTestContext()
 
-	router := NewRouter(nap)
+	router := newRouter(nap)
 	router.Add(GET, "/video/:action1", func(c *Context) error {
 		action = c.Param("action1")
 		c.SetStatus(201)

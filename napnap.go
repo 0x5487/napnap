@@ -37,6 +37,7 @@ type MiddlewareHandler interface {
 // MiddlewareFunc is an adapter to allow the use of ordinary functions as NapNap handlers.
 type MiddlewareFunc func(c *Context, next HandlerFunc)
 
+// Invoke function is a middleware entry
 func (m MiddlewareFunc) Invoke(c *Context, next HandlerFunc) {
 	m(c, next)
 }
@@ -59,13 +60,14 @@ func WrapHandler(h http.Handler) HandlerFunc {
 	}
 }
 
+// NapNap is root level of framework instance
 type NapNap struct {
 	pool             sync.Pool
 	handlers         []MiddlewareHandler
 	middleware       middleware
 	template         *template.Template
 	templateRootPath string
-	router           *Router
+	router           *router
 
 	MaxRequestBodySize int64
 	ErrorHandler       ErrorHandler
@@ -85,7 +87,7 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
 		return NewContext(nap, nil, rw)
 	}
 
-	nap.router = NewRouter(nap)
+	nap.router = newRouter(nap)
 	nap.Use(nap.router)
 
 	return nap
@@ -184,6 +186,7 @@ func (nap *NapNap) RunTLS(engine *Server) error {
 	return engine.ListenAndServeTLS(engine.Config.TLSCertFile, engine.Config.TLSKeyFile)
 }
 
+// RunAutoTLS will run http/2 server
 func (nap *NapNap) RunAutoTLS(engine *Server) error {
 
 	whiteLists := []string{}
@@ -238,7 +241,7 @@ func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	req.Body = http.MaxBytesReader(w, req.Body, nap.MaxRequestBodySize)
 	c := nap.pool.Get().(*Context)
 	c.reset(w, req)
-	nap.middleware.Execute(c)
+	_ = nap.middleware.Execute(c)
 	nap.pool.Put(c)
 }
 

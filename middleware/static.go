@@ -28,36 +28,37 @@ func NewStatic(dir string) *Static {
 	}
 }
 
+// Invoke function is a middleware entry
 func (s *Static) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	r := c.Request
 	if r.Method != "GET" && r.Method != "HEAD" {
-		next(c)
+		_ = next(c)
 		return
 	}
 	file := r.URL.Path
 	// if we have a prefix, filter requests by stripping the prefix
 	if s.Prefix != "" {
 		if !strings.HasPrefix(file, s.Prefix) {
-			next(c)
+			_ = next(c)
 			return
 		}
 		file = file[len(s.Prefix):]
 		if file != "" && file[0] != '/' {
-			next(c)
+			_ = next(c)
 			return
 		}
 	}
 	f, err := s.Dir.Open(file)
 	if err != nil {
 		// discard the error?
-		next(c)
+		_ = next(c)
 		return
 	}
 	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
-		next(c)
+		_ = next(c)
 		return
 	}
 
@@ -72,14 +73,14 @@ func (s *Static) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 		file = path.Join(file, s.IndexFile)
 		f, err = s.Dir.Open(file)
 		if err != nil {
-			next(c)
+			_ = next(c)
 			return
 		}
 		defer f.Close()
 
 		fi, err = f.Stat()
 		if err != nil || fi.IsDir() {
-			next(c)
+			_ = next(c)
 			return
 		}
 	}

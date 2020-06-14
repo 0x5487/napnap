@@ -68,14 +68,14 @@ const (
 	akind
 )
 
-type Router struct {
+type router struct {
 	nap  *NapNap
 	tree *tree
 }
 
 // NewRouter function will create a new router instance
-func NewRouter(nap *NapNap) *Router {
-	return &Router{
+func newRouter(nap *NapNap) *router {
+	return &router{
 		nap: nap,
 		tree: &tree{
 			rootNode: &node{
@@ -91,7 +91,7 @@ func NewRouter(nap *NapNap) *Router {
 }
 
 // Invoke function is a middleware entry
-func (r *Router) Invoke(c *Context, next HandlerFunc) {
+func (r *router) Invoke(c *Context, next HandlerFunc) {
 	h := r.Find(c.Request.Method, c.Request.URL.Path, c)
 
 	var err error
@@ -109,7 +109,7 @@ func (r *Router) Invoke(c *Context, next HandlerFunc) {
 }
 
 // All is a shortcut for adding all methods
-func (r *Router) All(path string, handler HandlerFunc) {
+func (r *router) All(path string, handler HandlerFunc) {
 	r.Add(GET, path, handler)
 	r.Add(POST, path, handler)
 	r.Add(PUT, path, handler)
@@ -120,42 +120,42 @@ func (r *Router) All(path string, handler HandlerFunc) {
 }
 
 // Get is a shortcut for router.Add("GET", path, handle)
-func (r *Router) Get(path string, handler HandlerFunc) {
+func (r *router) Get(path string, handler HandlerFunc) {
 	r.Add(GET, path, handler)
 }
 
 // Post is a shortcut for router.Add("POST", path, handle)
-func (r *Router) Post(path string, handler HandlerFunc) {
+func (r *router) Post(path string, handler HandlerFunc) {
 	r.Add(POST, path, handler)
 }
 
 // Put is a shortcut for router.Add("PUT", path, handle)
-func (r *Router) Put(path string, handler HandlerFunc) {
+func (r *router) Put(path string, handler HandlerFunc) {
 	r.Add(PUT, path, handler)
 }
 
 // Delete is a shortcut for router.Add("DELETE", path, handle)
-func (r *Router) Delete(path string, handler HandlerFunc) {
+func (r *router) Delete(path string, handler HandlerFunc) {
 	r.Add(DELETE, path, handler)
 }
 
 // Patch is a shortcut for router.Add("PATCH", path, handle)
-func (r *Router) Patch(path string, handler HandlerFunc) {
+func (r *router) Patch(path string, handler HandlerFunc) {
 	r.Add(PATCH, path, handler)
 }
 
 // Options is a shortcut for router.Add("OPTIONS", path, handle)
-func (r *Router) Options(path string, handler HandlerFunc) {
+func (r *router) Options(path string, handler HandlerFunc) {
 	r.Add(OPTIONS, path, handler)
 }
 
 // Head is a shortcut for router.Add("HEAD", path, handle)
-func (r *Router) Head(path string, handler HandlerFunc) {
+func (r *router) Head(path string, handler HandlerFunc) {
 	r.Add(HEAD, path, handler)
 }
 
 // Add function which adding path and handler to router
-func (r *Router) Add(method string, path string, handler HandlerFunc) {
+func (r *router) Add(method string, path string, handler HandlerFunc) {
 	_logger.debug("===Add")
 	if len(path) == 0 {
 		panic("router: path couldn't be empty")
@@ -243,7 +243,7 @@ func (r *Router) Add(method string, path string, handler HandlerFunc) {
 }
 
 // Find returns http handler for specific path
-func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
+func (r *router) Find(method string, path string, c *Context) HandlerFunc {
 	_logger.debug("===Find")
 	_logger.debug("method:" + method)
 	_logger.debug("path:" + path)

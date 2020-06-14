@@ -21,6 +21,8 @@ type Param struct {
 	Value string
 }
 
+// Context represents the context of the current HTTP request. It holds request and
+// response objects, path, path parameters, data and registered handler.
 type Context struct {
 	NapNap  *NapNap
 	Request *http.Request
@@ -152,7 +154,7 @@ func (c *Context) FormFile(key string) (*multipart.FileHeader, error) {
 }
 
 // SaveUploadedFile uploads the form file to specific dst.
-func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) error {
+func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) (err error) {
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -163,9 +165,18 @@ func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) error
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	// reference: https://www.joeshaw.org/dont-defer-close-on-writable-files/
+	defer func() {
+		cerr := out.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 
-	io.Copy(out, src)
+	_, err = io.Copy(out, src)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

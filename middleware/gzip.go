@@ -51,15 +51,15 @@ func (grw gzipResponseWriter) Write(b []byte) (int, error) {
 	return grw.napWriter.Write(b)
 }
 
-// handler struct contains the ServeHTTP method
-type gzipMiddleware struct {
+// GzipMiddleware struct is gzip middlware
+type GzipMiddleware struct {
 	pool sync.Pool
 }
 
 // NewGzip returns a middleware which will handle the Gzip compression in Invoke.
 // Valid values for level are identical to those in the compress/gzip package.
-func NewGzip(level int) *gzipMiddleware {
-	h := &gzipMiddleware{}
+func NewGzip(level int) *GzipMiddleware {
+	h := &GzipMiddleware{}
 	h.pool.New = func() interface{} {
 		gz, err := gzip.NewWriterLevel(ioutil.Discard, level)
 		if err != nil {
@@ -70,25 +70,25 @@ func NewGzip(level int) *gzipMiddleware {
 	return h
 }
 
-// Invoke wraps the http.ResponseWriter with a gzip.Writer.
-func (h *gzipMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
+// Invoke function is a middleware entry
+func (h *GzipMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	r := c.Request
 	w := c.Writer
 	// Skip compression if the client doesn't accept gzip encoding.
 	if !strings.Contains(r.Header.Get(headerAcceptEncoding), encodingGzip) {
-		next(c)
+		_ = next(c)
 		return
 	}
 
 	// Skip compression if client attempt WebSocket connection
 	if len(r.Header.Get(headerSecWebSocketKey)) > 0 {
-		next(c)
+		_ = next(c)
 		return
 	}
 
 	// Skip compression if already compressed
 	if w.Header().Get(headerContentEncoding) == encodingGzip {
-		next(c)
+		_ = next(c)
 		return
 	}
 
@@ -118,7 +118,7 @@ func (h *gzipMiddleware) Invoke(c *napnap.Context, next napnap.HandlerFunc) {
 	// Call the next handler supplying the gzipResponseWriter instead of
 	// the original.
 	c.Writer = grw
-	next(c)
+	_ = next(c)
 
-	gz.Close()
+	_ = gz.Close()
 }

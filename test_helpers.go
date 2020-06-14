@@ -4,7 +4,7 @@ import (
 	"net/http/httptest"
 )
 
-func CreateTestContext() (*Context, *httptest.ResponseRecorder, *NapNap) {
+func createTestContext() (*Context, *httptest.ResponseRecorder, *NapNap) {
 	nap := New()
 	w := httptest.NewRecorder()
 	c := &Context{
