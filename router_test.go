@@ -1,7 +1,6 @@
 package napnap
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
@@ -12,10 +11,11 @@ func testRoute(t *testing.T, method string, path string) {
 	passed := false
 	_, w, nap := CreateTestContext()
 
-	router := NewRouter()
-	router.Add(method, path, func(c *Context) {
+	router := NewRouter(nap)
+	router.Add(method, path, func(c *Context) error {
 		passed = true
 		c.SetStatus(200)
+		return nil
 	})
 	nap.Use(router)
 
@@ -38,10 +38,11 @@ func TestRouterParameterRoute(t *testing.T) {
 	var name string
 	_, w, nap := CreateTestContext()
 
-	router := NewRouter()
-	router.Add(GET, "/users/:name", func(c *Context) {
+	router := NewRouter(nap)
+	router.Add(GET, "/users/:name", func(c *Context) error {
 		name = c.Param("name")
 		c.SetStatus(200)
+		return nil
 	})
 	nap.Use(router)
 
@@ -56,23 +57,25 @@ func TestRouterMatchAnyRoute(t *testing.T) {
 	var action, helo string
 	_, w, nap := CreateTestContext()
 
-	router := NewRouter()
-	router.Add(GET, "/video/:action1", func(c *Context) {
-		fmt.Print("action1")
+	router := NewRouter(nap)
+	router.Add(GET, "/video/:action1", func(c *Context) error {
 		action = c.Param("action1")
 		c.SetStatus(201)
+		return nil
 	})
 
-	router.Add(GET, "/images/*action2", func(c *Context) {
-		fmt.Print("action2")
+	router.Add(GET, "/images/*action2", func(c *Context) error {
 		action = c.Param("action2")
 		c.SetStatus(200)
+		return nil
 	})
 
-	router.Add(GET, "/v1/:helo/images/*action2", func(c *Context) {
+	router.Add(GET, "/v1/:helo/images/*action2", func(c *Context) error {
 		helo = c.Param("helo")
 		action = c.Param("action2")
 		c.SetStatus(200)
+
+		return nil
 	})
 
 	nap.Use(router)

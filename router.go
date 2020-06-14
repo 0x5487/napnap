@@ -2,10 +2,6 @@ package napnap
 
 import "strings"
 
-type Router struct {
-	tree *tree
-}
-
 type tree struct {
 	rootNode *node
 }
@@ -72,9 +68,15 @@ const (
 	akind
 )
 
+type Router struct {
+	nap  *NapNap
+	tree *tree
+}
+
 // NewRouter function will create a new router instance
-func NewRouter() *Router {
+func NewRouter(nap *NapNap) *Router {
 	return &Router{
+		nap: nap,
 		tree: &tree{
 			rootNode: &node{
 				parent:    nil,
@@ -92,10 +94,15 @@ func NewRouter() *Router {
 func (r *Router) Invoke(c *Context, next HandlerFunc) {
 	h := r.Find(c.Request.Method, c.Request.URL.Path, c)
 
+	var err error
 	if h == nil {
-		next(c)
+		err = r.nap.NotFoundHandler(c)
 	} else {
-		h(c)
+		err = h(c)
+	}
+
+	if err != nil && r.nap.ErrorHandler != nil {
+		r.nap.ErrorHandler(c, err)
 	}
 }
 
@@ -313,14 +320,6 @@ func (r *Router) Find(method string, path string, c *Context) HandlerFunc {
 				return nil
 			}
 
-			// var newParams []Param
-			// for _, pName := range childNode.pNames {
-			// 	param := Param{Key: pName, Value: element}
-			// 	newParams = append(newParams, param)
-			// }
-			// pathParams[paramsNum] = newParams
-			// paramsNum++
-
 			paramsNum = 0
 			//println("params_count:", len(pathParams))
 			_logger.debug("lastNode_params_count:", len(childNode.params))
@@ -426,33 +425,3 @@ func (n *node) findHandler(method string) HandlerFunc {
 		panic("method was invalid")
 	}
 }
-
-/*
-type (
-	//MiddlewareFunc func(c *Context, next HandlerFunc)
-	// HTTPErrorHandler is a centralized HTTP error handler.
-	HTTPErrorHandler func(error)
-)
-
-
-// Conforms to the http.Handler interface.
-func (nap *NapNap) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-
-	c := NewContext(req, w)
-
-
-		for _, m := range nap.middlewares {
-			m(c)
-			if c.goNext == false {
-				break
-			}
-		}
-
-	// Execute chain
-	h := nap.Router.Find(req.Method, req.URL.Path, c)
-
-	if err := h(c); err != nil {
-		//nap.httpErrorHandler(err)
-	}
-}
-*/

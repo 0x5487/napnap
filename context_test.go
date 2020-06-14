@@ -1,7 +1,6 @@
 package napnap
 
 import (
-	"html/template"
 	"net/http"
 	"testing"
 
@@ -126,17 +125,17 @@ func TestContextSetGetValues(t *testing.T) {
 
 // Tests that the response executes the templates
 // and responds with Content-Type set to text/html
-func TestContextRenderHTML(t *testing.T) {
-	c, w, nap := CreateTestContext()
-	templ := template.Must(template.New("t").Parse(`Hello {{.name}}`))
-	nap.SetTemplate(templ)
+// func TestContextRenderHTML(t *testing.T) {
+// 	c, w, nap := CreateTestContext()
+// 	templ := template.Must(template.New("t").Parse(`Hello {{.name}}`))
+// 	nap.SetTemplate(templ)
 
-	data := make(map[string]string, 1)
-	data["name"] = "NapNap"
+// 	data := make(map[string]string, 1)
+// 	data["name"] = "NapNap"
 
-	c.Render(201, "t", data)
+// 	c.Render(201, "t", data)
 
-	assert.Equal(t, 201, w.Code)
-	assert.Equal(t, "Hello NapNap", w.Body.String())
-	assert.Equal(t, "text/html; charset=utf-8", w.HeaderMap.Get("Content-Type"))
-}
+// 	assert.Equal(t, 201, w.Code)
+// 	assert.Equal(t, "Hello NapNap", w.Body.String())
+// 	assert.Equal(t, "text/html; charset=utf-8", w.HeaderMap.Get("Content-Type"))
+// }

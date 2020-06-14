@@ -23,7 +23,10 @@ func init() {
 }
 
 // HandlerFunc defines a function to server HTTP requests
-type HandlerFunc func(c *Context)
+type HandlerFunc func(c *Context) error
+
+// ErrorHandler defines a function to handle HTTP errors
+type ErrorHandler func(c *Context, err error)
 
 // MiddlewareHandler is an interface that objects can implement to be registered to serve as middleware
 // in the NapNap middleware stack.
@@ -43,14 +46,16 @@ type middleware struct {
 	next    *middleware
 }
 
-func (m middleware) Execute(c *Context) {
+func (m middleware) Execute(c *Context) error {
 	m.handler.Invoke(c, m.next.Execute)
+	return nil
 }
 
 // WrapHandler wraps `http.Handler` into `napnap.HandlerFunc`.
 func WrapHandler(h http.Handler) HandlerFunc {
-	return func(c *Context) {
+	return func(c *Context) error {
 		h.ServeHTTP(c.Writer, c.Request)
+		return nil
 	}
 }
 
@@ -60,8 +65,11 @@ type NapNap struct {
 	middleware       middleware
 	template         *template.Template
 	templateRootPath string
+	router           *Router
 
 	MaxRequestBodySize int64
+	ErrorHandler       ErrorHandler
+	NotFoundHandler    HandlerFunc
 }
 
 // New returns a new NapNap instance
@@ -72,6 +80,8 @@ func New(mHandlers ...MiddlewareHandler) *NapNap {
 		MaxRequestBodySize: 10485760, // default 10MB for request body size
 	}
 
+	nap.router = NewRouter(nap)
+	nap.Use(nap.router)
 	nap.pool.New = func() interface{} {
 		rw := NewResponseWriter()
 		return NewContext(nap, nil, rw)
@@ -87,8 +97,60 @@ func (nap *NapNap) UseFunc(aFunc func(c *Context, next HandlerFunc)) {
 
 // Use adds a Handler onto the middleware stack. Handlers are invoked in the order they are added to a NapNap.
 func (nap *NapNap) Use(mHandler MiddlewareHandler) {
-	nap.handlers = append(nap.handlers, mHandler)
+	if len(nap.handlers) == 0 {
+		nap.handlers = append(nap.handlers, mHandler)
+	} else {
+		end := len(nap.handlers) - 1
+		nap.handlers = append(nap.handlers[:end], mHandler, nap.router)
+	}
+
 	nap.middleware = build(nap.handlers)
+}
+
+// All is a shortcut for adding all methods
+func (nap *NapNap) All(path string, handler HandlerFunc) {
+	nap.router.Add(GET, path, handler)
+	nap.router.Add(POST, path, handler)
+	nap.router.Add(PUT, path, handler)
+	nap.router.Add(DELETE, path, handler)
+	nap.router.Add(PATCH, path, handler)
+	nap.router.Add(OPTIONS, path, handler)
+	nap.router.Add(HEAD, path, handler)
+}
+
+// Get is a shortcut for router.Add("GET", path, handle)
+func (nap *NapNap) Get(path string, handler HandlerFunc) {
+	nap.router.Add(GET, path, handler)
+}
+
+// Post is a shortcut for router.Add("POST", path, handle)
+func (nap *NapNap) Post(path string, handler HandlerFunc) {
+	nap.router.Add(POST, path, handler)
+}
+
+// Put is a shortcut for router.Add("PUT", path, handle)
+func (nap *NapNap) Put(path string, handler HandlerFunc) {
+	nap.router.Add(PUT, path, handler)
+}
+
+// Delete is a shortcut for router.Add("DELETE", path, handle)
+func (nap *NapNap) Delete(path string, handler HandlerFunc) {
+	nap.router.Add(DELETE, path, handler)
+}
+
+// Patch is a shortcut for router.Add("PATCH", path, handle)
+func (nap *NapNap) Patch(path string, handler HandlerFunc) {
+	nap.router.Add(PATCH, path, handler)
+}
+
+// Options is a shortcut for router.Add("OPTIONS", path, handle)
+func (nap *NapNap) Options(path string, handler HandlerFunc) {
+	nap.router.Add(OPTIONS, path, handler)
+}
+
+// Head is a shortcut for router.Add("HEAD", path, handle)
+func (nap *NapNap) Head(path string, handler HandlerFunc) {
+	nap.router.Add(HEAD, path, handler)
 }
 
 func build(handlers []MiddlewareHandler) middleware {
