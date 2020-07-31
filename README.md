@@ -1,6 +1,6 @@
-# NapNap micro web framework
+# NapNap
 
-## Start using it
+## install
 1. Download and install it:
 
     ```sh
